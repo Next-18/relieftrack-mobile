@@ -22,9 +22,6 @@ export default function PackagesScreen() {
       />
 
       <View style={styles.note}>
-        <View style={styles.noteIconWrap}>
-          <Text style={styles.noteIcon}>ℹ</Text>
-        </View>
         <View style={styles.noteContent}>
           <Text style={styles.noteTitle}>Need package or pickup information?</Text>
           <Text style={styles.noteText}>
@@ -53,48 +50,48 @@ export default function PackagesScreen() {
 const styles = StyleSheet.create({
   note: {
     backgroundColor: colors.white,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 18,
+    borderColor: 'transparent',
+    borderRadius: 28,
+    borderWidth: 0,
+    padding: 24,
+    marginBottom: 24,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 12,
-    shadowColor: '#16231d',
+    gap: 16,
+    shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 1,
   },
   noteIconWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: colors.reliefTint,
-    borderColor: '#ccecd6',
-    borderWidth: 1,
+    borderColor: 'transparent',
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
   },
   noteIcon: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: '800',
+    color: colors.accent,
+    fontSize: 16,
+    fontWeight: '400',
   },
   noteContent: {
     flex: 1,
   },
   noteTitle: {
-    color: colors.darkBlue,
-    fontSize: 13.5,
-    fontWeight: '700',
-    marginBottom: 3,
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '400',
+    marginBottom: 4,
   },
   noteText: {
     color: colors.muted,
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
   },
 });

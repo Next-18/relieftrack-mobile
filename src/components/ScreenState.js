@@ -7,7 +7,7 @@ export function LoadingState({ message = 'Loading your information…' }) {
   return (
     <View style={styles.centered}>
       <View style={styles.spinnerWrap}>
-        <ActivityIndicator color={colors.primary} size="small" />
+        <ActivityIndicator color={colors.accent} size="small" />
       </View>
       <Text style={styles.loadingMessage}>{message}</Text>
     </View>
@@ -17,7 +17,7 @@ export function LoadingState({ message = 'Loading your information…' }) {
 export function ErrorState({ message, onRetry }) {
   return (
     <View style={styles.stateCard}>
-      <Text style={styles.warningIcon}>⚠️</Text>
+
       <Text style={styles.stateTitle}>We couldn’t load this right now</Text>
       <Text style={styles.message}>{message}</Text>
       {onRetry ? (
@@ -44,45 +44,45 @@ const styles = StyleSheet.create({
     minHeight: 140,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 16,
   },
   spinnerWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.white,
     borderColor: colors.border,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#16231d',
+    shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   loadingMessage: {
     color: colors.muted,
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '400',
   },
   stateCard: {
     backgroundColor: colors.white,
     borderColor: colors.border,
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 22,
-    marginBottom: 14,
-    shadowColor: '#16231d',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
+    borderRadius: 28,
+    borderWidth: 0,
+    padding: 28,
+    marginBottom: 24,
+    shadowColor: '#3A2A1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
     elevation: 2,
   },
   emptyCard: {
     alignItems: 'center',
     textAlign: 'center',
-    paddingVertical: 28,
+    paddingVertical: 36,
   },
   emptyIcon: {
     fontSize: 26,
@@ -90,39 +90,32 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   iconCircleWarning: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.warningBackground,
-    borderColor: '#fed7aa',
+    borderColor: colors.border,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
-  },
-  warningIcon: {
-    fontSize: 26,
-    marginBottom: 10,
-    lineHeight: 30,
-    textAlign: 'center',
+    marginBottom: 16,
   },
   stateTitle: {
-    color: colors.darkBlue,
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: -0.2,
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '400',
     textAlign: 'center',
   },
   message: {
     color: colors.muted,
-    fontSize: 13,
-    lineHeight: 19,
-    marginTop: 6,
+    fontSize: 15,
+    lineHeight: 22,
+    marginTop: 8,
     textAlign: 'center',
     maxWidth: 290,
   },
   buttonWrap: {
     width: '100%',
-    marginTop: 8,
+    marginTop: 16,
   },
 });

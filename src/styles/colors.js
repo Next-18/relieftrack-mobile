@@ -1,39 +1,45 @@
 const colors = {
-  // Backgrounds - warm dirty white & canvas
-  background: '#f4f3ef',         // Signature dirty white (warm off-white canvas)
-  dirtyWhite: '#f4f3ef',         // Warm off-white
-  dirtyWhiteDarker: '#eeece7',   // Dirty white card surface (admin profile-box tone)
-  white: '#ffffff',              // Crisp white card surface
-  blueBackground: '#edf7f2',     // Soft relief sage tint (replaced blue highlight)
-  reliefTint: '#edf7f2',         // Soft sage highlight
-  successBackground: '#edf7f2',  // Light emerald
-  warningBackground: '#fffbeb',  // Warm amber
-  errorBackground: '#fef2f2',    // Soft red
+  // Backgrounds - warm cream tones
+  background: '#FFFBF7',         // Main background
+  dirtyWhite: '#FFFBF7',         // Same as background
+  dirtyWhiteDarker: '#FFFEFB',   // Card / input surface
+  white: '#FFFEFB',              // Card / input surface
+  blueBackground: '#FEF1E4',     // Soft tint (hotline card, icon circles)
+  reliefTint: '#FEF1E4',         // Soft tint for icons and highlights
+  successBackground: '#FEF1E4',  // Soft orange tint
+  warningBackground: '#FEF4EA',  // Soft orange tint
+  errorBackground: '#FEF1E4',    // Soft orange tint
 
-  // Text - deep forest charcoal & natural slate (zero blue)
-  text: '#1f2937',               // Deep charcoal body text
-  darkBlue: '#16231d',           // Deep forest charcoal headings (neutralized dark tone)
-  darkText: '#16231d',           // Deep forest charcoal
-  muted: '#5f6f67',              // Muted sage-slate
-  subtitle: '#5f6f67',
-  label: '#44534b',              // Form label
-  placeholder: '#9ca3af',        // Neutral gray placeholder
-  help: '#6b7280',
+  // Text - warm brown tones
+  text: '#40332B',               // Main text
+  darkBlue: '#3A2A1E',           // Primary button text (dark brown)
+  darkText: '#40332B',           // Main text
+  muted: '#7A6F64',              // Secondary text
+  subtitle: '#7A6F64',
+  label: '#40332B',              // Form label
+  placeholder: '#8C857A',        // Input border / placeholder
+  help: '#7A6F64',
 
-  // Borders - warm sand & light divider
-  border: '#deded8',             // Warm sand/gray border matching dirty white surfaces
-  borderLight: '#e5e7eb',
-  divider: '#e9eae5',            // Subtle table/section divider
+  // Borders - soft orange tones
+  border: '#F3E6D6',             // Dividers and subtle borders
+  borderLight: '#F3E6D6',
+  divider: '#F3E6D6',            // Dividers
 
-  // Brand / interactive - Forest Relief Green
-  primary: '#1b6e49',            // Rich forest / relief emerald green
-  primaryDark: '#145336',        // Pressed / deep forest state
-  primaryLight: '#228659',       // Bright relief green
+  // Brand / interactive - Soft orange
+  primary: '#FBDDC2',            // Primary fill (buttons, highlight cards)
+  primaryDark: '#FBDDC2',        // Same as primary
+  primaryLight: '#FBDDC2',       // Same as primary
+
+  // Accent colors
+  accent: '#A8571F',             // Accent text / links / active icons
+  progress: '#CF7A3A',           // Progress / tracker accent
+  activeTab: '#FDEBDB',          // Active tab pill
+  inactiveTracker: '#F4E9DB',    // Inactive tracker lines/dots
 
   // Status
-  success: '#1b6e49',            // Forest relief green
-  warning: '#b45309',            // Warm amber
-  error: '#dc2626',              // Clear crimson red
+  success: '#A8571F',            // Accent orange
+  warning: '#CF7A3A',            // Progress orange
+  error: '#A8571F',              // Accent orange
 };
 
 export default colors;
