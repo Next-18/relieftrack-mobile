@@ -141,6 +141,20 @@ export async function getAvailablePackages(token) {
   return unwrapCollection(result);
 }
 
+export async function recordDistribution(token, payload) {
+  const result = await sendRequest(
+    '/distributions',
+    {
+      method: 'POST',
+      token,
+      body: JSON.stringify(payload),
+    },
+    'The distribution could not be recorded. Please try again.'
+  );
+
+  return unwrapRecord(result);
+}
+
 export async function logoutBeneficiary(token) {
   return sendRequest(
     '/auth/logout',

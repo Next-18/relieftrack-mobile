@@ -85,6 +85,11 @@ export default function HomeScreen() {
           </>
         ) : null}
 
+        {/* Scan QR Button */}
+        <Link href="/scan-qr" style={styles.qrButton} accessibilityRole="button" accessibilityLabel="Scan QR code to record relief">
+          <Text style={styles.qrButtonText}>Scan QR to record relief</Text>
+        </Link>
+
         {/* Recent Distributions Section */}
         <SectionHeading
           title="Recent relief distributions"

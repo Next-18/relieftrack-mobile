@@ -29,7 +29,14 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-router"
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ReliefTrack to access your camera to scan QR codes.",
+          "recordAudioAndroid": false
+        }
+      ]
     ]
   }
 }
