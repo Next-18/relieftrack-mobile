@@ -9,8 +9,8 @@ const globalStyles = StyleSheet.create({
   content: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 28,
-    paddingVertical: 28,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
@@ -19,7 +19,7 @@ const globalStyles = StyleSheet.create({
   // App header (login / register screens)
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 36,
+    marginBottom: 24,
   },
   logoImage: {
     width: 80,
@@ -41,10 +41,10 @@ const globalStyles = StyleSheet.create({
   // Form card — matches the admin's .shell / .form-panel feel
   formCard: {
     backgroundColor: colors.white,
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
     borderColor: colors.border,
-    padding: 28,
+    padding: 20,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
@@ -60,13 +60,13 @@ const globalStyles = StyleSheet.create({
   formIntro: {
     fontSize: 16,
     color: colors.muted,
-    marginBottom: 36,
+    marginBottom: 24,
     lineHeight: 22,
   },
 
   // Inputs — matches admin .field style
   inputContainer: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   label: {
     fontSize: 15,
@@ -75,11 +75,11 @@ const globalStyles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    height: 58,
+    height: 52,
     borderWidth: 2,
     borderColor: colors.placeholder,
-    borderRadius: 16,
-    paddingHorizontal: 18,
+    borderRadius: 14,
+    paddingHorizontal: 16,
     fontSize: 16,
     backgroundColor: colors.white,
     color: colors.text,
@@ -93,15 +93,15 @@ const globalStyles = StyleSheet.create({
   passwordInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 58,
+    height: 52,
     borderWidth: 2,
     borderColor: colors.placeholder,
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: colors.white,
   },
   passwordInput: {
     flex: 1,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     fontSize: 16,
     color: colors.text,
   },
@@ -109,7 +109,7 @@ const globalStyles = StyleSheet.create({
     minWidth: 60,
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   showPasswordText: {
     color: colors.accent,
@@ -120,12 +120,12 @@ const globalStyles = StyleSheet.create({
   // Primary button — matches admin .submit
   primaryButton: {
     backgroundColor: colors.primary,
-    height: 58,
-    borderRadius: 16,
+    height: 52,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
-    marginBottom: 24,
+    marginBottom: 20,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -145,7 +145,7 @@ const globalStyles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: colors.border,
-    marginVertical: 24,
+    marginVertical: 20,
   },
 
   // Register / login prompt rows
@@ -154,7 +154,7 @@ const globalStyles = StyleSheet.create({
     color: colors.muted,
     fontSize: 15,
     marginTop: 6,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   loginPromptRow: {
     flexDirection: 'row',
@@ -162,7 +162,7 @@ const globalStyles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
     marginTop: -2,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   registerPromptText: {
     color: colors.muted,
@@ -179,13 +179,13 @@ const globalStyles = StyleSheet.create({
 
   // Secondary button (outline)
   secondaryButton: {
-    height: 58,
+    height: 52,
     borderWidth: 0,
     borderColor: colors.border,
-    borderRadius: 16,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     backgroundColor: colors.white,
   },
   secondaryButtonText: {
@@ -241,11 +241,11 @@ const globalStyles = StyleSheet.create({
   // Account number card (post-registration)
   accountNumberCard: {
     backgroundColor: colors.white,
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
     borderColor: colors.border,
-    padding: 28,
-    marginBottom: 24,
+    padding: 20,
+    marginBottom: 20,
   },
   accountNumberLabel: {
     color: colors.text,

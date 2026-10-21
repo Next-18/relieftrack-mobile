@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { Link } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,6 +17,7 @@ import colors from '../styles/colors';
 export default function HomeScreen() {
   const { session } = useAuth();
   const { data, loading, refreshing, errors, refresh } = useBeneficiaryData();
+  const [showQR, setShowQR] = useState(false);
 
   const name = (session.user.name ?? '').trim().split(/\s+/)[0] || 'there';
   const { profile, distributions, packages } = data;
@@ -29,24 +30,10 @@ export default function HomeScreen() {
     >
       {/* Aesthetic Hero Banner */}
       <View style={styles.hero}>
-        <View style={styles.heroBadge}>
-          <Text style={styles.heroBadgeText}>RELIEF PORTAL</Text>
-        </View>
-
         <Text style={styles.heroTitle}>Welcome, {name}</Text>
-        <Text style={styles.heroText}>
-          Your beneficiary records, pass, and relief updates are synced and ready.
-        </Text>
-
-        <View style={styles.idPassCard}>
-          <View style={styles.idPassHeader}>
-            <Text style={styles.idPassLabel}>BENEFICIARY PASS</Text>
-            {profile?.status ? <StatusPill status={profile.status} /> : null}
-          </View>
-          <Text selectable style={styles.idPassNumber}>{session.beneficiaryNo}</Text>
-          <View style={styles.idPassFooter}>
-            <Text style={styles.idPassNotice}>Official Barangay Credential</Text>
-          </View>
+        <View style={styles.idPassMini}>
+          <Text style={styles.idPassNumber}>{session.beneficiaryNo}</Text>
+          {profile?.status ? <StatusPill status={profile.status} /> : null}
         </View>
       </View>
 
@@ -67,36 +54,35 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* QR Pass Card */}
+        {/* QR Pass Button */}
         {profile?.qr_code ? (
-          <View style={styles.qrCard}>
-            <View style={styles.qrHeader}>
-              <Text style={styles.qrTag}>DIGITAL QR PASS</Text>
-              <Text style={styles.qrTitle}>Official Beneficiary QR</Text>
-              <Text style={styles.qrText}>
-                Present this code to ReliefTrack staff at distribution checkpoints for swift identity verification.
-              </Text>
-            </View>
-            <View style={styles.qrFrame} accessibilityLabel="Beneficiary QR code">
-              <QRCode
-                value={profile.beneficiary_no || session.beneficiaryNo}
-                size={168}
-                color={colors.darkBlue}
-                backgroundColor={colors.white}
-                ecl="H"
-                quietZone={8}
-              />
-            </View>
-            <Text selectable style={styles.qrNumber}>{session.beneficiaryNo}</Text>
-            <Text style={styles.qrHelper}>Instant Scan Verification</Text>
-          </View>
-        ) : profile ? (
-          <View style={styles.qrNotice}>
-            <Text style={styles.qrNoticeTitle}>QR Pass Pending Issuance</Text>
-            <Text style={styles.qrNoticeText}>
-              Your Barangay Administrator can issue your official QR pass for expedited identity verification.
-            </Text>
-          </View>
+          <>
+            <TouchableOpacity
+              style={styles.qrButton}
+              onPress={() => setShowQR(!showQR)}
+              accessibilityRole="button"
+              accessibilityLabel="View QR code"
+            >
+              <Text style={styles.qrButtonText}>{showQR ? 'Hide QR code' : 'View QR code'}</Text>
+            </TouchableOpacity>
+
+            {showQR && (
+              <View style={styles.qrModal}>
+                <View style={styles.qrFrame} accessibilityLabel="Beneficiary QR code">
+                  <QRCode
+                    value={profile.beneficiary_no || session.beneficiaryNo}
+                    size={200}
+                    color={colors.text}
+                    backgroundColor={colors.white}
+                    ecl="H"
+                    quietZone={8}
+                  />
+                </View>
+                <Text selectable style={styles.qrNumber}>{session.beneficiaryNo}</Text>
+                <Text style={styles.qrHelper}>Show this code at distribution checkpoints</Text>
+              </View>
+            )}
+          </>
         ) : null}
 
         {/* Recent Distributions Section */}
@@ -166,92 +152,44 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderColor: 'transparent',
     borderWidth: 0,
-    borderRadius: 28,
-    padding: 28,
-    marginBottom: 24,
-    shadowColor: '#3A2A1E',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  heroBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.white,
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    padding: 16,
     marginBottom: 16,
-  },
-  heroBadgeText: {
-    color: colors.darkBlue,
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  heroTitle: {
-    color: colors.darkBlue,
-    fontSize: 30,
-    fontWeight: '700',
-  },
-  heroText: {
-    color: colors.darkBlue,
-    fontSize: 16,
-    lineHeight: 22,
-    marginTop: 8,
-  },
-  idPassCard: {
-    backgroundColor: colors.white,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderRadius: 28,
-    padding: 24,
-    marginTop: 24,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
-    elevation: 1,
+    elevation: 2,
   },
-  idPassHeader: {
+  heroTitle: {
+    color: colors.darkBlue,
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  idPassMini: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  idPassLabel: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: '400',
+    marginTop: 12,
   },
   idPassNumber: {
     color: colors.text,
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: '700',
-    letterSpacing: 1.2,
-  },
-  idPassFooter: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  idPassNotice: {
-    color: colors.accent,
-    fontSize: 13,
-    fontWeight: '400',
+    letterSpacing: 1,
   },
   statsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   statCard: {
     backgroundColor: colors.white,
     borderColor: 'transparent',
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
     flex: 1,
-    padding: 24,
+    padding: 16,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -281,58 +219,54 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: colors.text,
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
   },
   statLabel: {
     color: colors.muted,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '400',
     marginTop: 4,
   },
-  qrCard: {
+  qrButton: {
+    backgroundColor: colors.white,
+    borderColor: colors.border,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: '#3A2A1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  qrButtonText: {
+    color: colors.accent,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  qrModal: {
     alignItems: 'center',
     backgroundColor: colors.white,
     borderColor: 'transparent',
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
-    padding: 28,
-    marginTop: 24,
+    padding: 24,
+    marginBottom: 16,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 2,
   },
-  qrHeader: {
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  qrTag: {
-    color: colors.accent,
-    fontSize: 11,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  qrTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  qrText: {
-    color: colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 8,
-    textAlign: 'center',
-    maxWidth: 290,
-  },
   qrFrame: {
     alignItems: 'center',
     backgroundColor: colors.white,
     borderColor: colors.border,
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 1,
     padding: 20,
     shadowColor: '#3A2A1E',
@@ -354,25 +288,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: 4,
   },
-  qrNotice: {
-    backgroundColor: colors.white,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderRadius: 28,
-    padding: 24,
-    marginTop: 24,
-  },
-  qrNoticeTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  qrNoticeText: {
-    color: colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-  },
   pillLink: {
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -387,11 +302,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.white,
     borderColor: 'transparent',
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
     flexDirection: 'row',
-    padding: 24,
-    gap: 16,
+    padding: 16,
+    gap: 12,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -399,9 +314,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   packageSummaryBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.reliefTint,
     borderColor: 'transparent',
     borderWidth: 0,
@@ -410,7 +325,7 @@ const styles = StyleSheet.create({
   },
   packageSummaryValue: {
     color: colors.accent,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
   },
   packageSummaryTextWrap: {
@@ -418,13 +333,13 @@ const styles = StyleSheet.create({
   },
   packageSummaryHeading: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400',
   },
   packageSummaryText: {
     color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     marginTop: 4,
   },
 });

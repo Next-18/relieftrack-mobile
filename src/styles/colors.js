@@ -4,9 +4,9 @@ const colors = {
   dirtyWhite: '#FFFBF7',         // Same as background
   dirtyWhiteDarker: '#FFFEFB',   // Card / input surface
   white: '#FFFEFB',              // Card / input surface
-  blueBackground: '#FEF1E4',     // Soft tint (hotline card, icon circles)
-  reliefTint: '#FEF1E4',         // Soft tint for icons and highlights
-  successBackground: '#FEF1E4',  // Soft orange tint
+  blueBackground: '#FEF1E4',     // Soft light orange tint (hotline card, icon circles)
+  reliefTint: '#FEF1E4',         // Soft light orange tint for icons and highlights
+  successBackground: '#FEF1E4',  // Soft light orange tint
   warningBackground: '#FEF4EA',  // Soft orange tint
   errorBackground: '#FEF1E4',    // Soft orange tint
 
@@ -25,21 +25,21 @@ const colors = {
   borderLight: '#F3E6D6',
   divider: '#F3E6D6',            // Dividers
 
-  // Brand / interactive - Soft orange
+  // Brand / interactive - Light orange
   primary: '#FBDDC2',            // Primary fill (buttons, highlight cards)
   primaryDark: '#FBDDC2',        // Same as primary
   primaryLight: '#FBDDC2',       // Same as primary
 
-  // Accent colors
-  accent: '#A8571F',             // Accent text / links / active icons
-  progress: '#CF7A3A',           // Progress / tracker accent
-  activeTab: '#FDEBDB',          // Active tab pill
-  inactiveTracker: '#F4E9DB',    // Inactive tracker lines/dots
+  // Accent colors - GREEN for active elements only
+  accent: '#2E7D32',             // Accent text / links / active icons (dark green) - ACTIVE
+  progress: '#CF7A3A',           // Progress / tracker accent (orange)
+  activeTab: '#E8F5E9',          // Active tab pill (light green) - ACTIVE
+  inactiveTracker: '#F4E9DB',    // Inactive tracker lines/dots (orange)
 
   // Status
-  success: '#A8571F',            // Accent orange
-  warning: '#CF7A3A',            // Progress orange
-  error: '#A8571F',              // Accent orange
+  success: '#A8571F',            // Orange
+  warning: '#CF7A3A',            // Orange
+  error: '#A8571F',              // Orange
 };
 
 export default colors;

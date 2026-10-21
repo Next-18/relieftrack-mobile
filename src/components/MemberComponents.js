@@ -73,7 +73,7 @@ export function formatDate(value) {
 
 const styles = StyleSheet.create({
   pageHeading: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   pageTitle: {
     color: colors.text,
@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 36,
-    marginBottom: 16,
+    marginTop: 24,
+    marginBottom: 12,
   },
   sectionTitle: {
     color: colors.text,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   detailRow: {
     borderBottomColor: colors.divider,
     borderBottomWidth: 1,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   detailLabel: {
     color: colors.muted,

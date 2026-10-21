@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
   note: {
     backgroundColor: colors.white,
     borderColor: 'transparent',
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
-    padding: 24,
-    marginBottom: 24,
+    padding: 20,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 16,

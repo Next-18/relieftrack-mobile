@@ -26,9 +26,9 @@ export default function MemberLayout({ children, onRefresh, refreshing = false }
               <Text style={styles.brandCaption}>BENEFICIARY PORTAL</Text>
             </View>
           </View>
-          <View style={styles.liveBadge}>
-            <View style={styles.liveDot} />
-            <Text style={styles.liveText}>Active</Text>
+          <View style={styles.notificationBadge}>
+            <View style={styles.notificationDot} />
+            <Text style={styles.notificationText}>Notification</Text>
           </View>
         </View>
         {children}
@@ -46,16 +46,16 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 580,
     alignSelf: 'center',
-    paddingHorizontal: 28,
-    paddingTop: 16,
-    paddingBottom: 32,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
-    paddingBottom: 16,
+    marginBottom: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: 2,
   },
-  liveBadge: {
+  notificationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.white,
@@ -90,13 +90,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     gap: 6,
   },
-  liveDot: {
+  notificationDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.progress,
   },
-  liveText: {
+  notificationText: {
     color: colors.text,
     fontSize: 12,
     fontWeight: '400',

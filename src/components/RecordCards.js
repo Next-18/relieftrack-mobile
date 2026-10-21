@@ -59,16 +59,16 @@ export function PackageCard({ packageItem }) {
 
 const styles = StyleSheet.create({
   row: {
-    minHeight: 64,
+    minHeight: 56,
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   compactRow: {
-    paddingVertical: 14,
+    paddingVertical: 10,
   },
   rowContent: {
     flex: 1,
@@ -86,18 +86,18 @@ const styles = StyleSheet.create({
   rowTitle: {
     color: colors.text,
     flex: 1,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '400',
-    lineHeight: 24,
+    lineHeight: 22,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
+    marginTop: 4,
   },
   dateText: {
     color: colors.muted,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '400',
   },
   categoryPill: {
@@ -114,21 +114,21 @@ const styles = StyleSheet.create({
   },
   description: {
     color: colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
   },
   noteBox: {
     backgroundColor: colors.white,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    marginTop: 8,
+    marginTop: 6,
   },
   noteText: {
     color: colors.text,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     fontStyle: 'italic',
   },
   chevron: {

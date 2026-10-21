@@ -333,15 +333,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
     borderColor: 'transparent',
-    borderRadius: 28,
+    borderRadius: 20,
     borderWidth: 0,
-    padding: 28,
+    padding: 20,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   nameRow: {
     alignItems: 'center',
@@ -384,12 +384,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   editButton: {
-    marginTop: 24,
-    paddingVertical: 14,
+    marginTop: 20,
+    paddingVertical: 12,
     paddingHorizontal: 20,
     borderWidth: 0,
     borderColor: 'transparent',
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   editHeader: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   editTitle: {
     color: colors.text,
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   passwordToggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 12,
     gap: 12,
   },
   checkbox: {
@@ -449,9 +449,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderColor: 'transparent',
     borderWidth: 0,
-    borderRadius: 28,
-    padding: 24,
-    marginBottom: 24,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
   },
   actionButtons: {
     marginTop: 8,
@@ -459,13 +459,13 @@ const styles = StyleSheet.create({
   cancelButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 16,
+    paddingVertical: 14,
+    borderRadius: 14,
     borderWidth: 0,
     borderColor: 'transparent',
     backgroundColor: colors.white,
     marginTop: -4,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   cancelButtonText: {
     color: colors.muted,
@@ -477,9 +477,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.successBackground,
     borderColor: 'transparent',
     borderWidth: 0,
-    borderRadius: 28,
-    padding: 24,
-    marginBottom: 24,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
   },
   successTitle: {
     color: colors.accent,
@@ -488,9 +488,9 @@ const styles = StyleSheet.create({
   },
   warning: {
     backgroundColor: colors.warningBackground,
-    borderRadius: 28,
-    padding: 24,
-    marginTop: 24,
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 20,
   },
   warningTitle: {
     color: colors.progress,
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     textAlign: 'center',
-    marginTop: 24,
+    marginTop: 20,
     marginBottom: 12,
   },
 });
