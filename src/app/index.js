@@ -4,5 +4,11 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function IndexRoute() {
   const { session } = useAuth();
-  return <Redirect href={session ? '/(tabs)/home' : '/login'} />;
+  const destination = !session
+    ? '/login'
+    : session.passwordChanged
+      ? '/(tabs)/home'
+      : '/change-password';
+
+  return <Redirect href={destination} />;
 }

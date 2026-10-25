@@ -17,27 +17,32 @@ export default function PackagesScreen() {
   return (
     <MemberLayout onRefresh={() => refresh('packages')} refreshing={isRefreshing}>
       <PageHeading
-        title="Available aid packages"
-        subtitle="Explore relief goods and packages currently marked ready by your Barangay."
+        title="Relief packages"
+        subtitle="See the packages your Barangay has prepared."
       />
 
       <View style={styles.note}>
         <View style={styles.noteContent}>
-          <Text style={styles.noteTitle}>Need package or pickup information?</Text>
+          <Text style={styles.noteTitle}>How to collect a package</Text>
           <Text style={styles.noteText}>
-            Release schedules and eligibility are managed directly by your Barangay Administrator.
+            Your Barangay Administrator assigns packages. Assigned packages appear under My Relief. At pickup, tap the center QR button in the navigation and show the code to staff.
           </Text>
         </View>
       </View>
 
-      {error ? <ErrorState message={error} onRetry={() => refresh('packages')} /> : null}
-      {isLoading && !packages ? <LoadingState message="Loading available packages…" /> : null}
+      {errors.distributions ? (
+        <ErrorState message={errors.distributions} onRetry={() => refresh('distributions')} />
+      ) : null}
+      {!errors.distributions && error ? <ErrorState message={error} onRetry={() => refresh('packages')} /> : null}
+      {!errors.distributions && (isLoading || loading.distributions) && !packages ? (
+        <LoadingState message="Loading available packages…" />
+      ) : null}
 
-      {packages?.length ? packages.map((item) => (
+      {!errors.distributions && packages?.length ? packages.map((item) => (
         <PackageCard key={item.id} packageItem={item} />
       )) : null}
 
-      {packages && packages.length === 0 ? (
+      {!errors.distributions && packages && packages.length === 0 ? (
         <EmptyState
           title="No packages currently available"
           message="Check back soon or contact your Barangay Administrator for the upcoming relief distribution schedule."

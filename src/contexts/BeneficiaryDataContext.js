@@ -4,9 +4,11 @@ import {
   getAvailablePackages,
   getBeneficiaryDistributions,
   getBeneficiaryProfile,
+  getBeneficiaryNotifications,
+  markBeneficiaryNotificationRead,
 } from '../services/api';
 
-const RESOURCE_KEYS = ['profile', 'distributions', 'packages'];
+const RESOURCE_KEYS = ['profile', 'distributions', 'packages', 'notifications'];
 const BeneficiaryDataContext = createContext(null);
 
 function makeResourceState(initialValue) {
@@ -47,6 +49,7 @@ export function BeneficiaryDataProvider({ children }) {
       profile: () => getBeneficiaryProfile(session.token, session.beneficiaryId),
       distributions: () => getBeneficiaryDistributions(session.token, session.beneficiaryId),
       packages: () => getAvailablePackages(session.token),
+      notifications: () => getBeneficiaryNotifications(session.token),
     };
 
     await Promise.all(requests.map(async ({ key, requestId }) => {
@@ -76,8 +79,10 @@ export function BeneficiaryDataProvider({ children }) {
 
   useEffect(() => {
     loadResources(RESOURCE_KEYS);
+    const pendingAssignmentPoll = setInterval(() => loadResources(['distributions', 'packages', 'notifications'], true), 30000);
     const ids = requestIds.current;
     return () => {
+      clearInterval(pendingAssignmentPoll);
       RESOURCE_KEYS.forEach((key) => {
         ids[key] += 1;
       });
@@ -97,13 +102,48 @@ export function BeneficiaryDataProvider({ children }) {
     });
   }, []);
 
-  const value = useMemo(() => ({ data, loading, refreshing, errors, refresh, setProfileData }), [
-    data,
+  const markNotificationRead = useCallback(async (notificationId) => {
+    await markBeneficiaryNotificationRead(session.token, notificationId);
+    const readAt = new Date().toISOString();
+    setData((current) => {
+      const next = {
+        ...current,
+        notifications: (current.notifications || []).map((notification) => (
+          notification.id === notificationId ? { ...notification, read_at: readAt } : notification
+        )),
+      };
+      dataRef.current = next;
+      return next;
+    });
+  }, [session.token]);
+
+  const visibleData = useMemo(() => {
+    // Do not briefly expose the unfiltered inventory while personal history is
+    // still loading. Screens can show a loader or the distribution error.
+    if (!data.packages || !data.distributions) {
+      return { ...data, packages: null };
+    }
+
+    const assignedPackageIds = new Set(
+      data.distributions
+        .filter((distribution) => ['pending', 'released'].includes(String(distribution.status).toLowerCase()))
+        .map((distribution) => String(distribution.package_id))
+    );
+
+    return {
+      ...data,
+      packages: data.packages.filter((packageItem) => !assignedPackageIds.has(String(packageItem.id))),
+    };
+  }, [data]);
+
+  const value = useMemo(() => ({ data: visibleData, loading, refreshing, errors, refresh, setProfileData, markNotificationRead }), [
+    visibleData,
     loading,
     refreshing,
     errors,
     refresh,
     setProfileData,
+    markNotificationRead,
   ]);
 
   return (

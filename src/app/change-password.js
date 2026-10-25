@@ -9,7 +9,8 @@ export default function ChangePasswordRoute() {
 
   const handleChangePassword = async ({ currentPassword, newPassword }) => {
     await updatePassword({ currentPassword, newPassword });
-    router.replace('/(tabs)');
+    // Let the root index choose an available screen after the auth guard updates.
+    router.replace('/');
   };
 
   return <ChangePasswordScreen onChangePassword={handleChangePassword} />;

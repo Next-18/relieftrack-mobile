@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
@@ -10,23 +9,23 @@ import {
   LoadingState,
 } from '../components/ScreenState';
 import MemberLayout from '../components/MemberLayout';
-import { SectionHeading, StatusPill } from '../components/MemberComponents';
+import { AnnouncementSection, PendingAssignmentNotice, SectionHeading, StatusPill } from '../components/MemberComponents';
 import { DistributionCard } from '../components/RecordCards';
 import colors from '../styles/colors';
 
 export default function HomeScreen() {
   const { session } = useAuth();
-  const { data, loading, refreshing, errors, refresh } = useBeneficiaryData();
-  const [showQR, setShowQR] = useState(false);
+  const { data, loading, refreshing, errors, refresh, markNotificationRead } = useBeneficiaryData();
 
   const name = (session.user.name ?? '').trim().split(/\s+/)[0] || 'there';
-  const { profile, distributions, packages } = data;
+  const { profile, distributions, packages, notifications } = data;
   const releasedCount = distributions?.filter((item) => item.status === 'Released').length;
+  const pendingAssignments = distributions?.filter((item) => item.status === 'Pending') ?? [];
 
   return (
     <MemberLayout
       onRefresh={() => refresh()}
-      refreshing={refreshing.profile || refreshing.distributions || refreshing.packages}
+      refreshing={refreshing.profile || refreshing.distributions || refreshing.packages || refreshing.notifications}
     >
       {/* Aesthetic Hero Banner */}
       <View style={styles.hero}>
@@ -39,6 +38,11 @@ export default function HomeScreen() {
 
       {errors.profile ? <ErrorState message={errors.profile} onRetry={() => refresh('profile')} /> : null}
       {loading.profile && !profile ? <LoadingState message="Loading your relief updates…" /> : null}
+      <AnnouncementSection
+        notifications={notifications || []}
+        onMarkRead={markNotificationRead}
+      />
+      <PendingAssignmentNotice assignments={pendingAssignments} />
 
       <>
         {/* Metric Stat Cards */}
@@ -50,40 +54,9 @@ export default function HomeScreen() {
 
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{packages?.length ?? '0'}</Text>
-            <Text style={styles.statLabel}>Available packages</Text>
+            <Text style={styles.statLabel}>Packages listed</Text>
           </View>
         </View>
-
-        {/* QR Pass Button */}
-        {profile?.qr_code ? (
-          <>
-            <TouchableOpacity
-              style={styles.qrButton}
-              onPress={() => setShowQR(!showQR)}
-              accessibilityRole="button"
-              accessibilityLabel="View QR code"
-            >
-              <Text style={styles.qrButtonText}>{showQR ? 'Hide QR code' : 'View QR code'}</Text>
-            </TouchableOpacity>
-
-            {showQR && (
-              <View style={styles.qrModal}>
-                <View style={styles.qrFrame} accessibilityLabel="Beneficiary QR code">
-                  <QRCode
-                    value={profile.beneficiary_no || session.beneficiaryNo}
-                    size={200}
-                    color={colors.text}
-                    backgroundColor={colors.white}
-                    ecl="H"
-                    quietZone={8}
-                  />
-                </View>
-                <Text selectable style={styles.qrNumber}>{session.beneficiaryNo}</Text>
-                <Text style={styles.qrHelper}>Show this code at distribution checkpoints</Text>
-              </View>
-            )}
-          </>
-        ) : null}
 
         {/* Recent Distributions Section */}
         <SectionHeading
@@ -118,7 +91,9 @@ export default function HomeScreen() {
             </Link>
           }
         />
-        {loading.packages && !packages ? (
+        {errors.distributions ? (
+          <ErrorState message={errors.distributions} onRetry={() => refresh('distributions')} />
+        ) : loading.distributions || loading.packages ? (
           <LoadingState message="Loading available packages…" />
         ) : errors.packages ? (
           <ErrorState message={errors.packages} onRetry={() => refresh('packages')} />
@@ -223,66 +198,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   statLabel: {
-    color: colors.muted,
-    fontSize: 13,
-    fontWeight: '400',
-    marginTop: 4,
-  },
-  qrButton: {
-    backgroundColor: colors.white,
-    borderColor: colors.border,
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    shadowColor: '#3A2A1E',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  qrButtonText: {
-    color: colors.accent,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  qrModal: {
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderColor: 'transparent',
-    borderRadius: 20,
-    borderWidth: 0,
-    padding: 24,
-    marginBottom: 16,
-    shadowColor: '#3A2A1E',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  qrFrame: {
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderColor: colors.border,
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 20,
-    shadowColor: '#3A2A1E',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  qrNumber: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    marginTop: 16,
-  },
-  qrHelper: {
     color: colors.muted,
     fontSize: 13,
     fontWeight: '400',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../styles/colors';
 
 export function PageHeading({ title, subtitle }) {
@@ -16,6 +16,59 @@ export function SectionHeading({ title, trailing }) {
     <View style={styles.sectionHeading}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {trailing}
+    </View>
+  );
+}
+
+export function PendingAssignmentNotice({ assignments = [], onShowQr }) {
+  if (!assignments.length) return null;
+  const packageNames = [...new Set(assignments.map((item) => item.relief_package?.package_name || item.package_name || 'Relief package'))];
+
+  return (
+    <View style={styles.pendingNotice}>
+      <View style={styles.pendingNoticeIcon}><Text style={styles.pendingNoticeIconText}>!</Text></View>
+      <View style={styles.pendingNoticeCopy}>
+        <Text style={styles.pendingNoticeTitle}>{assignments.length === 1 ? 'A relief package is assigned to you' : `${assignments.length} relief packages are assigned to you`}</Text>
+        <Text style={styles.pendingNoticeText}>{packageNames.join(', ')} · Pending pickup. Show your QR code to relief staff when collecting it.</Text>
+        {onShowQr ? (
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={onShowQr}
+            style={styles.pickupQrButton}
+          >
+            <Text style={styles.pickupQrButtonText}>Show pickup QR code</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+export function AnnouncementSection({ notifications = [], onMarkRead }) {
+  const latestAnnouncements = notifications.slice(0, 5);
+
+  return (
+    <View style={styles.announcementSection}>
+      <Text style={styles.announcementHeading}>Announcements</Text>
+      {latestAnnouncements.length ? latestAnnouncements.map((notification) => (
+        <View key={notification.id} style={styles.announcementCard}>
+          <Text style={styles.announcementTitle}>{notification.title}</Text>
+          <Text style={styles.announcementText}>{notification.message}</Text>
+          {!notification.read_at ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => onMarkRead?.(notification.id)}
+              style={styles.markReadButton}
+            >
+              <Text style={styles.markReadText}>Mark as read</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      )) : (
+        <View style={styles.announcementEmpty}>
+          <Text style={styles.announcementEmptyText}>No announcements yet. Relief assignment and pickup updates will appear here.</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -72,6 +125,67 @@ export function formatDate(value) {
 }
 
 const styles = StyleSheet.create({
+  announcementSection: {
+    marginBottom: 4,
+  },
+  announcementHeading: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  announcementCard: {
+    backgroundColor: '#FFF8E8',
+    borderColor: '#F1D38B',
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 14,
+  },
+  announcementTitle: { color: '#674600', fontSize: 14, fontWeight: '700' },
+  announcementText: { color: '#7B5B1E', fontSize: 13, lineHeight: 19, marginTop: 4 },
+  announcementEmpty: {
+    backgroundColor: colors.white,
+    borderColor: colors.border,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 14,
+  },
+  announcementEmptyText: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  pendingNotice: {
+    alignItems: 'flex-start',
+    backgroundColor: '#FFF8E8',
+    borderColor: '#F1D38B',
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 11,
+    marginBottom: 16,
+    padding: 14,
+  },
+  pendingNoticeIcon: {
+    alignItems: 'center',
+    backgroundColor: '#F6E5B7',
+    borderRadius: 12,
+    height: 28,
+    justifyContent: 'center',
+    width: 28,
+  },
+  pendingNoticeIconText: { color: '#855500', fontSize: 16, fontWeight: '700' },
+  pendingNoticeCopy: { flex: 1, gap: 4 },
+  pendingNoticeTitle: { color: '#674600', fontSize: 14, fontWeight: '700' },
+  pendingNoticeText: { color: '#7B5B1E', fontSize: 13, lineHeight: 19 },
+  pickupQrButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.accent,
+    borderRadius: 10,
+    marginTop: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  pickupQrButtonText: { color: colors.white, fontSize: 14, fontWeight: '700' },
+  markReadButton: { alignSelf: 'flex-start', marginTop: 5 },
+  markReadText: { color: '#674600', fontSize: 12, fontWeight: '700' },
   pageHeading: {
     marginBottom: 16,
   },

@@ -141,6 +141,24 @@ export async function getAvailablePackages(token) {
   return unwrapCollection(result);
 }
 
+export async function getBeneficiaryNotifications(token) {
+  const result = await sendRequest(
+    '/notifications',
+    { token },
+    'Your notifications could not be loaded.'
+  );
+
+  return result.data || [];
+}
+
+export async function markBeneficiaryNotificationRead(token, notificationId) {
+  return sendRequest(
+    '/notifications/' + encodeURIComponent(notificationId) + '/read',
+    { method: 'PATCH', token },
+    'The notification could not be marked as read.'
+  );
+}
+
 export async function logoutBeneficiary(token) {
   return sendRequest(
     '/auth/logout',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import MemberLayout from '../components/MemberLayout';
-import { PageHeading } from '../components/MemberComponents';
+import { PageHeading, PendingAssignmentNotice } from '../components/MemberComponents';
 import { DistributionCard } from '../components/RecordCards';
 import { EmptyState, ErrorState, LoadingState } from '../components/ScreenState';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
@@ -13,14 +13,16 @@ export default function DistributionsScreen() {
   const isLoading = loading.distributions;
   const isRefreshing = refreshing.distributions;
   const error = errors.distributions;
+  const pendingAssignments = distributions?.filter((item) => item.status === 'Pending') ?? [];
 
   return (
     <MemberLayout onRefresh={() => refresh('distributions')} refreshing={isRefreshing}>
       <PageHeading
         title="My relief history"
-        subtitle="Complete distribution records logged for your beneficiary account."
+        subtitle="See packages assigned to you and your completed relief history."
       />
 
+      <PendingAssignmentNotice assignments={pendingAssignments} />
       {error ? <ErrorState message={error} onRetry={() => refresh('distributions')} /> : null}
       {isLoading && !distributions ? <LoadingState message="Loading your distribution history…" /> : null}
 
@@ -35,7 +37,7 @@ export default function DistributionsScreen() {
                 {distributions.length === 1 ? '1 Relief distribution record' : `${distributions.length} Relief distribution records`}
               </Text>
               <Text style={styles.countSublabel}>
-                Verified and distributed by your Barangay Relief staff.
+                Pending assignments stay here until staff scans your QR code at pickup.
               </Text>
             </View>
           </View>
@@ -48,7 +50,7 @@ export default function DistributionsScreen() {
       {distributions && distributions.length === 0 ? (
         <EmptyState
           title="No distributions recorded yet"
-          message="ReliefTrack will automatically log each package here once released by your Barangay Administrator."
+          message="Packages assigned to you will appear here as pending. Staff will mark them released when you collect them."
         />
       ) : null}
     </MemberLayout>
