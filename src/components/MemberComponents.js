@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import colors from '../styles/colors';
@@ -54,6 +54,19 @@ function BellIcon({ size = 20 }) {
   );
 }
 
+export function NotificationBell({ unreadCount = 0 }) {
+  return (
+    <View style={styles.bellWrap}>
+      <BellIcon />
+      {unreadCount > 0 ? (
+        <View style={styles.bellBadge}>
+          <Text style={styles.bellBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 function AnnouncementCard({ notification, onMarkRead, children }) {
   return (
     <View style={styles.announcementCard}>
@@ -73,25 +86,13 @@ function AnnouncementCard({ notification, onMarkRead, children }) {
   );
 }
 
-export function AnnouncementSection({ notifications = [], onMarkRead }) {
-  const [expanded, setExpanded] = useState(false);
-  const unreadCount = notifications.filter((notification) => !notification.read_at).length;
+export function AnnouncementSection({ notifications = [], onMarkRead, expanded = false, onToggleExpanded }) {
   const first = notifications[0];
   const hiddenCount = Math.max(notifications.length - 1, 0);
 
   return (
     <View style={styles.announcementSection}>
-      <View style={styles.announcementHeader}>
-        <Text style={styles.announcementHeading}>Announcements</Text>
-        <View style={styles.bellWrap}>
-          <BellIcon />
-          {unreadCount > 0 ? (
-            <View style={styles.bellBadge}>
-              <Text style={styles.bellBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
-            </View>
-          ) : null}
-        </View>
-      </View>
+      <Text style={styles.announcementHeading}>Announcements</Text>
 
       {!first ? (
         <View style={styles.announcementEmpty}>
@@ -104,7 +105,7 @@ export function AnnouncementSection({ notifications = [], onMarkRead }) {
               <TouchableOpacity
                 accessibilityRole="button"
                 accessibilityState={{ expanded }}
-                onPress={() => setExpanded((current) => !current)}
+                onPress={onToggleExpanded}
                 style={styles.showMoreButton}
               >
                 <Text style={styles.showMoreText}>
@@ -179,16 +180,11 @@ const styles = StyleSheet.create({
   announcementSection: {
     marginBottom: 4,
   },
-  announcementHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
   announcementHeading: {
     color: colors.text,
     fontSize: 18,
     fontWeight: '700',
+    marginBottom: 10,
   },
   bellWrap: {
     padding: 4,

@@ -36,7 +36,7 @@ function GridIcon() {
 
 export default function HomeScreen() {
   const { session } = useAuth();
-  const { data, loading, refreshing, errors, refresh, markNotificationRead } = useBeneficiaryData();
+  const { data, loading, refreshing, errors, refresh, markNotificationRead, announcementsExpanded, toggleAnnouncementsExpanded } = useBeneficiaryData();
 
   const name = (session.user.name ?? '').trim().split(/\s+/)[0] || 'there';
   const { profile, distributions, packages, notifications } = data;
@@ -61,6 +61,8 @@ export default function HomeScreen() {
       <AnnouncementSection
         notifications={notifications || []}
         onMarkRead={markNotificationRead}
+        expanded={announcementsExpanded}
+        onToggleExpanded={toggleAnnouncementsExpanded}
       />
 
       <>
