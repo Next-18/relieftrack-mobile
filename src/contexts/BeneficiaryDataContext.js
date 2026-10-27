@@ -24,9 +24,14 @@ export function BeneficiaryDataProvider({ children }) {
   const [refreshing, setRefreshing] = useState(() => makeResourceState(false));
   const [errors, setErrors] = useState(() => makeResourceState(''));
   const [announcementsExpanded, setAnnouncementsExpanded] = useState(false);
+  const [releasedItems, setReleasedItems] = useState(null);
 
   const toggleAnnouncementsExpanded = useCallback(() => {
     setAnnouncementsExpanded((current) => !current);
+  }, []);
+
+  const dismissReleasedAlert = useCallback(() => {
+    setReleasedItems(null);
   }, []);
 
   const loadResources = useCallback(async (resourceKeys, showRefreshing = false) => {
@@ -61,6 +66,17 @@ export function BeneficiaryDataProvider({ children }) {
       try {
         const nextValue = await loaders[key]();
         if (requestIds.current[key] !== requestId) return;
+
+        if (key === 'distributions' && Array.isArray(nextValue) && Array.isArray(dataRef.current.distributions)) {
+          const isReleased = (item) => String(item.status).toLowerCase() === 'released';
+          const releasedIds = new Set(
+            dataRef.current.distributions.filter(isReleased).map((item) => String(item.id))
+          );
+          const newlyReleased = nextValue.filter((item) => isReleased(item) && !releasedIds.has(String(item.id)));
+          if (newlyReleased.length > 0) {
+            setReleasedItems(newlyReleased);
+          }
+        }
 
         setData((current) => {
           const next = { ...current, [key]: nextValue };
@@ -141,7 +157,7 @@ export function BeneficiaryDataProvider({ children }) {
     };
   }, [data]);
 
-  const value = useMemo(() => ({ data: visibleData, loading, refreshing, errors, refresh, setProfileData, markNotificationRead, announcementsExpanded, setAnnouncementsExpanded, toggleAnnouncementsExpanded }), [
+  const value = useMemo(() => ({ data: visibleData, loading, refreshing, errors, refresh, setProfileData, markNotificationRead, announcementsExpanded, setAnnouncementsExpanded, toggleAnnouncementsExpanded, releasedItems, dismissReleasedAlert }), [
     visibleData,
     loading,
     refreshing,
@@ -151,6 +167,8 @@ export function BeneficiaryDataProvider({ children }) {
     markNotificationRead,
     announcementsExpanded,
     toggleAnnouncementsExpanded,
+    releasedItems,
+    dismissReleasedAlert,
   ]);
 
   return (

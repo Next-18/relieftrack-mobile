@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
 import { useAuth } from '../contexts/AuthContext';
+import SubScreenHeader from '../components/SubScreenHeader';
 import PasswordField from '../components/PasswordField';
 import PrimaryButton from '../components/PrimaryButton';
 import colors from '../styles/colors';
 import globalStyles from '../styles/globalStyles';
-
-function BackIcon() {
-  return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M19 12H5" />
-      <Path d="M12 19l-7-7 7-7" />
-    </Svg>
-  );
-}
 
 export default function UpdatePasswordScreen() {
   const router = useRouter();
@@ -72,29 +63,19 @@ export default function UpdatePasswordScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.header}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <BackIcon />
-          </Pressable>
-          <Text style={styles.headerTitle}>Change password</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <SubScreenHeader title="Change password" />
 
         <ScrollView
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={globalStyles.formCard}>
-            <Text style={globalStyles.formIntro}>
-              Enter your current password, then choose a new one you&apos;ll remember.
+          <View style={globalStyles.formCardCompact}>
+            <Text style={globalStyles.formIntroCompact}>
+              Enter your current password, then choose a new one.
             </Text>
 
             <PasswordField
+              compact
               label="Current password"
               value={currentPassword}
               onChangeText={(value) => {
@@ -108,6 +89,7 @@ export default function UpdatePasswordScreen() {
             />
 
             <PasswordField
+              compact
               label="New password"
               value={newPassword}
               onChangeText={(value) => {
@@ -121,6 +103,7 @@ export default function UpdatePasswordScreen() {
             />
 
             <PasswordField
+              compact
               label="Confirm new password"
               value={confirmPassword}
               onChangeText={(value) => {
@@ -143,6 +126,7 @@ export default function UpdatePasswordScreen() {
             ) : null}
 
             <PrimaryButton
+              compact
               title={isSaving ? 'Updating…' : 'Update password'}
               onPress={handleSubmit}
               disabled={isSaving || !!success}
@@ -164,35 +148,9 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  header: {
-    alignItems: 'center',
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    paddingBottom: 12,
-    paddingHorizontal: 12,
-    paddingTop: 8,
-  },
-  backButton: {
-    alignItems: 'center',
-    borderRadius: 20,
-    height: 40,
-    justifyContent: 'center',
-    width: 40,
-  },
-  headerTitle: {
-    color: colors.text,
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
-  },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 16,
     paddingBottom: 24,
     width: '100%',
     maxWidth: 580,

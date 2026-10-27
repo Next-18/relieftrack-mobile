@@ -1,16 +1,14 @@
 import React from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useRouter } from 'expo-router';
 import colors from '../styles/colors';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
-import { NotificationBell } from './MemberComponents';
+import ReceiptAlertModal from './ReceiptAlertModal';
 
 export default function MemberLayout({ children, onRefresh, refreshing = false }) {
-  const router = useRouter();
-  const { data, setAnnouncementsExpanded } = useBeneficiaryData();
-  const unreadCount = (data.notifications || []).filter((notification) => !notification.read_at).length;
+  const { releasedItems, dismissReleasedAlert } = useBeneficiaryData();
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -36,21 +34,11 @@ export default function MemberLayout({ children, onRefresh, refreshing = false }
                 <Text style={styles.brandCaption}>BENEFICIARY PORTAL</Text>
               </View>
             </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={unreadCount > 0 ? `Show notifications, ${unreadCount} unread` : 'Show notifications'}
-              onPress={() => {
-                router.navigate('/(tabs)/home');
-                setAnnouncementsExpanded(true);
-              }}
-              style={styles.notificationButton}
-            >
-              <NotificationBell unreadCount={unreadCount} />
-            </Pressable>
           </View>
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
+      <ReceiptAlertModal items={releasedItems} onDismiss={dismissReleasedAlert} />
     </SafeAreaView>
   );
 }
@@ -83,10 +71,6 @@ const styles = StyleSheet.create({
   brand: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  notificationButton: {
-    padding: 8,
-    borderRadius: 20,
   },
   logo: {
     width: 38,

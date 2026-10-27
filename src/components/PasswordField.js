@@ -15,15 +15,16 @@ export default function PasswordField({
   returnKeyType = 'next',
   onSubmitEditing,
   placeholder = 'Enter password',
+  compact = false,
 }) {
   return (
-    <View style={globalStyles.inputContainer}>
-      <Text style={globalStyles.label}>{label}</Text>
+    <View style={compact ? globalStyles.inputContainerCompact : globalStyles.inputContainer}>
+      <Text style={compact ? globalStyles.labelCompact : globalStyles.label}>{label}</Text>
 
       {showVisibilityButton ? (
-        <View style={globalStyles.passwordInputWrapper}>
+        <View style={compact ? globalStyles.passwordInputWrapperCompact : globalStyles.passwordInputWrapper}>
           <TextInput
-            style={globalStyles.passwordInput}
+            style={compact ? globalStyles.passwordInputCompact : globalStyles.passwordInput}
             placeholder={placeholder}
             placeholderTextColor={colors.placeholder}
             value={value}
@@ -38,7 +39,7 @@ export default function PasswordField({
             onSubmitEditing={onSubmitEditing}
           />
           <TouchableOpacity
-            style={globalStyles.showPasswordButton}
+            style={compact ? globalStyles.showPasswordButtonCompact : globalStyles.showPasswordButton}
             onPress={onToggleVisibility}
             accessibilityRole="button"
             accessibilityLabel={visible ? 'Hide password' : 'Show password'}
@@ -48,7 +49,7 @@ export default function PasswordField({
         </View>
       ) : (
         <TextInput
-          style={globalStyles.input}
+          style={compact ? globalStyles.inputCompact : globalStyles.input}
           placeholder={placeholder}
           placeholderTextColor={colors.placeholder}
           value={value}

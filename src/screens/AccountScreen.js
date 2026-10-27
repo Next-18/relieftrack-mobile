@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import MemberLayout from '../components/MemberLayout';
-import FormField from '../components/FormField';
-import PrimaryButton from '../components/PrimaryButton';
 import { DetailRow, PageHeading, StatusPill } from '../components/MemberComponents';
 import { ErrorState, LoadingState } from '../components/ScreenState';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
-import { updateBeneficiaryProfile } from '../services/api';
 import colors from '../styles/colors';
-import globalStyles from '../styles/globalStyles';
 
 function MenuRow({ title, subtitle, onPress, destructive = false, disabled = false }) {
   return (
@@ -31,80 +27,20 @@ function MenuRow({ title, subtitle, onPress, destructive = false, disabled = fal
 }
 
 export default function AccountScreen() {
-  const { session, signOut, storageWarning, updateSessionUser } = useAuth();
+  const { session, signOut, storageWarning } = useAuth();
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const { data, loading, refreshing, errors, refresh, setProfileData } = useBeneficiaryData();
+  const { data, loading, refreshing, errors, refresh } = useBeneficiaryData();
   const profile = data.profile;
   const isLoading = loading.profile;
   const isRefreshing = refreshing.profile;
   const error = errors.profile;
 
-  // Edit state
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState('');
-
-  // Form fields
-  const [fullName, setFullName] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [householdSize, setHouseholdSize] = useState('');
-
-  const startEditing = () => {
-    setSaveError('');
-    setSaveSuccess('');
-    setFullName(profile?.full_name || session?.user?.name || '');
-    setContactNumber(profile?.contact_number || '');
-    setAddress(profile?.address || '');
-    setHouseholdSize(profile?.household_size ? String(profile.household_size) : '');
-    setIsEditing(true);
-  };
-
-  const cancelEditing = () => {
-    setIsEditing(false);
-    setSaveError('');
-  };
-
-  const handleSave = async () => {
-    if (!fullName.trim()) {
-      setSaveError('Please enter your full name.');
-      return;
-    }
-
-    if (householdSize && (isNaN(Number(householdSize)) || Number(householdSize) < 1 || Number(householdSize) > 99)) {
-      setSaveError('Household size must be a number between 1 and 99.');
-      return;
-    }
-
-    setIsSaving(true);
-    setSaveError('');
-    setSaveSuccess('');
-
-    try {
-      const payload = {
-        full_name: fullName.trim(),
-        contact_number: contactNumber.trim() || null,
-        address: address.trim() || null,
-        household_size: householdSize.trim() ? parseInt(householdSize.trim(), 10) : null,
-      };
-
-      const updated = await updateBeneficiaryProfile(session.token, session.beneficiaryId, payload);
-
-      setProfileData(updated);
-      if (updated.full_name) {
-        updateSessionUser({ name: updated.full_name });
-      }
-
-      setIsEditing(false);
-      setSaveSuccess('Your account details have been updated.');
-    } catch (err) {
-      setSaveError(err.message || 'Could not update your account. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  useFocusEffect(
+    useCallback(() => {
+      refresh('profile');
+    }, [refresh])
+  );
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -121,13 +57,7 @@ export default function AccountScreen() {
       {error ? <ErrorState message={error} onRetry={() => refresh('profile')} /> : null}
       {isLoading && !profile ? <LoadingState message="Loading your beneficiary profile…" /> : null}
 
-      {saveSuccess ? (
-        <View style={styles.successNotice}>
-          <Text style={styles.successTitle}>{saveSuccess}</Text>
-        </View>
-      ) : null}
-
-      {profile && !isEditing ? (
+      {profile ? (
         <>
           <View style={styles.card}>
             <View style={styles.nameRow}>
@@ -155,7 +85,7 @@ export default function AccountScreen() {
             <MenuRow
               title="Edit profile details"
               subtitle="Name, contact, address, household size"
-              onPress={startEditing}
+              onPress={() => router.push('/edit-profile')}
             />
             <View style={styles.menuDivider} />
             <MenuRow
@@ -174,87 +104,6 @@ export default function AccountScreen() {
         </>
       ) : null}
 
-      {isEditing ? (
-        <View style={styles.card}>
-          <View style={styles.editHeader}>
-            <Text style={styles.editTitle}>Edit profile details</Text>
-            <Text style={styles.editSubtitle}>
-              Update your contact information.
-            </Text>
-          </View>
-
-          <FormField
-            label="Full name"
-            value={fullName}
-            onChangeText={(v) => {
-              setSaveError('');
-              setFullName(v);
-            }}
-            placeholder="Your full name"
-            autoComplete="name"
-          />
-
-          <FormField
-            label="Contact number"
-            value={contactNumber}
-            onChangeText={(v) => {
-              setSaveError('');
-              setContactNumber(v);
-            }}
-            placeholder="e.g. 09123456789"
-            keyboardType="phone-pad"
-            autoComplete="tel"
-          />
-
-          <FormField
-            label="Address"
-            value={address}
-            onChangeText={(v) => {
-              setSaveError('');
-              setAddress(v);
-            }}
-            placeholder="House no., street, barangay"
-            multiline
-            numberOfLines={3}
-            autoComplete="street-address"
-          />
-
-          <FormField
-            label="Household size"
-            value={householdSize}
-            onChangeText={(v) => {
-              setSaveError('');
-              setHouseholdSize(v);
-            }}
-            placeholder="Number of members in household"
-            keyboardType="number-pad"
-          />
-
-          {saveError ? (
-            <Text accessibilityRole="alert" style={globalStyles.errorText}>
-              {saveError}
-            </Text>
-          ) : null}
-
-          <View style={styles.actionButtons}>
-            <PrimaryButton
-              title={isSaving ? 'Saving changes…' : 'Save changes'}
-              onPress={handleSave}
-              disabled={isSaving}
-            />
-
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={cancelEditing}
-              disabled={isSaving}
-              accessibilityRole="button"
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null}
-
       {storageWarning ? (
         <View style={styles.warning}>
           <Text style={styles.warningTitle}>This device could not save your sign-in</Text>
@@ -262,11 +111,9 @@ export default function AccountScreen() {
         </View>
       ) : null}
 
-      {!isEditing ? (
-        <Text style={styles.help}>
-          Priority type and issuance of QR passes are managed by your Barangay Administrator.
-        </Text>
-      ) : null}
+      <Text style={styles.help}>
+        Priority type and issuance of QR passes are managed by your Barangay Administrator.
+      </Text>
     </MemberLayout>
   );
 }
@@ -371,53 +218,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.divider,
     height: 1,
     marginLeft: 20,
-  },
-  editHeader: {
-    marginBottom: 20,
-  },
-  editTitle: {
-    color: colors.text,
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  editSubtitle: {
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  actionButtons: {
-    marginTop: 8,
-  },
-  cancelButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 0,
-    borderColor: 'transparent',
-    backgroundColor: colors.white,
-    marginTop: -4,
-    marginBottom: 20,
-  },
-  cancelButtonText: {
-    color: colors.muted,
-    fontSize: 16,
-    fontWeight: '400',
-    textDecorationLine: 'underline',
-  },
-  successNotice: {
-    backgroundColor: colors.successBackground,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  successTitle: {
-    color: colors.accent,
-    fontSize: 15,
-    fontWeight: '400',
   },
   warning: {
     backgroundColor: colors.warningBackground,

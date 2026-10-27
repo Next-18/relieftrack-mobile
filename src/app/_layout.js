@@ -21,7 +21,8 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={Boolean(session) && session?.passwordChanged}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="update-password" />
+        <Stack.Screen name="update-password" options={{ animation: 'none' }} />
+        <Stack.Screen name="edit-profile" options={{ animation: 'none' }} />
       </Stack.Protected>
     </Stack>
   );

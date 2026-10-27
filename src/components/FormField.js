@@ -17,12 +17,19 @@ export default function FormField({
   numberOfLines,
   returnKeyType = 'next',
   onSubmitEditing,
+  compact = false,
 }) {
+  const containerStyle = compact ? globalStyles.inputContainerCompact : globalStyles.inputContainer;
+  const labelStyle = compact ? globalStyles.labelCompact : globalStyles.label;
+  const inputStyle = compact
+    ? [globalStyles.inputCompact, multiline && globalStyles.multilineInputCompact]
+    : [globalStyles.input, multiline && globalStyles.multilineInput];
+
   return (
-    <View style={globalStyles.inputContainer}>
-      <Text style={globalStyles.label}>{label}</Text>
+    <View style={containerStyle}>
+      <Text style={labelStyle}>{label}</Text>
       <TextInput
-        style={[globalStyles.input, multiline && globalStyles.multilineInput]}
+        style={inputStyle}
         placeholder={placeholder}
         placeholderTextColor={colors.placeholder}
         value={value}
