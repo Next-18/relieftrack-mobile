@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useAuth } from '../contexts/AuthContext';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
 import {
@@ -9,9 +10,29 @@ import {
   LoadingState,
 } from '../components/ScreenState';
 import MemberLayout from '../components/MemberLayout';
-import { AnnouncementSection, PendingAssignmentNotice, SectionHeading, StatusPill } from '../components/MemberComponents';
+import { AnnouncementSection, SectionHeading, StatusPill } from '../components/MemberComponents';
 import { DistributionCard } from '../components/RecordCards';
 import colors from '../styles/colors';
+
+function ClockIcon() {
+  return (
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Circle cx="12" cy="12" r="9" />
+      <Path d="M12 7v5l3 2" />
+    </Svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={colors.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Rect x="3" y="3" width="7" height="7" rx="1" />
+      <Rect x="14" y="3" width="7" height="7" rx="1" />
+      <Rect x="3" y="14" width="7" height="7" rx="1" />
+      <Rect x="14" y="14" width="7" height="7" rx="1" />
+    </Svg>
+  );
+}
 
 export default function HomeScreen() {
   const { session } = useAuth();
@@ -20,7 +41,6 @@ export default function HomeScreen() {
   const name = (session.user.name ?? '').trim().split(/\s+/)[0] || 'there';
   const { profile, distributions, packages, notifications } = data;
   const releasedCount = distributions?.filter((item) => item.status === 'Released').length;
-  const pendingAssignments = distributions?.filter((item) => item.status === 'Pending') ?? [];
 
   return (
     <MemberLayout
@@ -29,11 +49,11 @@ export default function HomeScreen() {
     >
       {/* Aesthetic Hero Banner */}
       <View style={styles.hero}>
-        <Text style={styles.heroTitle}>Welcome, {name}</Text>
-        <View style={styles.idPassMini}>
+        <View style={styles.heroCopy}>
+          <Text style={styles.heroTitle}>Welcome, {name}</Text>
           <Text style={styles.idPassNumber}>{session.beneficiaryNo}</Text>
-          {profile?.status ? <StatusPill status={profile.status} /> : null}
         </View>
+        {profile?.status ? <StatusPill status={profile.status} /> : null}
       </View>
 
       {errors.profile ? <ErrorState message={errors.profile} onRetry={() => refresh('profile')} /> : null}
@@ -42,7 +62,6 @@ export default function HomeScreen() {
         notifications={notifications || []}
         onMarkRead={markNotificationRead}
       />
-      <PendingAssignmentNotice assignments={pendingAssignments} />
 
       <>
         {/* Metric Stat Cards */}
@@ -62,11 +81,16 @@ export default function HomeScreen() {
         <SectionHeading
           title="Recent relief distributions"
           trailing={
-            <Link href="/distributions" style={styles.pillLink}>
-              <Text style={styles.pillLinkText}>View history →</Text>
+            <Link href="/distributions" asChild>
+              <Pressable style={styles.sectionLinkPill}>
+                <ClockIcon />
+                <Text style={styles.sectionLinkText}>History</Text>
+              </Pressable>
             </Link>
           }
         />
+
+
         {loading.distributions && !distributions ? (
           <LoadingState message="Loading relief history…" />
         ) : errors.distributions ? (
@@ -86,8 +110,11 @@ export default function HomeScreen() {
         <SectionHeading
           title="Available relief packages"
           trailing={
-            <Link href="/packages" style={styles.pillLink}>
-              <Text style={styles.pillLinkText}>Browse all →</Text>
+            <Link href="/packages" asChild>
+              <Pressable style={styles.sectionLinkPill}>
+                <GridIcon />
+                <Text style={styles.sectionLinkText}>Browse all</Text>
+              </Pressable>
             </Link>
           }
         />
@@ -124,10 +151,13 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   hero: {
+    alignItems: 'center',
     backgroundColor: colors.primary,
     borderColor: 'transparent',
     borderWidth: 0,
     borderRadius: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: 16,
     marginBottom: 16,
     shadowColor: '#3A2A1E',
@@ -136,22 +166,20 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  heroCopy: {
+    flex: 1,
+    gap: 4,
+  },
   heroTitle: {
     color: colors.darkBlue,
     fontSize: 22,
     fontWeight: '700',
   },
-  idPassMini: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
   idPassNumber: {
     color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 1,
+    fontSize: 15,
+    fontWeight: '400',
+    letterSpacing: 0.5,
   },
   statsRow: {
     flexDirection: 'row',
@@ -159,11 +187,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   statCard: {
+    alignItems: 'center',
     backgroundColor: colors.white,
     borderColor: 'transparent',
     borderRadius: 20,
     borderWidth: 0,
     flex: 1,
+    flexDirection: 'row',
+    gap: 8,
     padding: 16,
     shadowColor: '#3A2A1E',
     shadowOffset: { width: 0, height: 2 },
@@ -201,17 +232,22 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 13,
     fontWeight: '400',
-    marginTop: 4,
+    flex: 1,
   },
-  pillLink: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+  sectionLinkPill: {
+    alignItems: 'center',
+    borderColor: colors.border,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
-  pillLinkText: {
-    color: colors.accent,
-    fontSize: 14,
+  sectionLinkText: {
+    color: colors.text,
+    fontSize: 13,
     fontWeight: '400',
-    textDecorationLine: 'underline',
   },
   packageSummary: {
     alignItems: 'center',

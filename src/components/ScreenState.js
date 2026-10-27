@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   stateTitle: {
     color: colors.text,
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: '600',
     textAlign: 'center',
   },
   message: {
