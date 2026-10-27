@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import MemberLayout from '../components/MemberLayout';
 import FormField from '../components/FormField';
-import PasswordField from '../components/PasswordField';
 import PrimaryButton from '../components/PrimaryButton';
 import { DetailRow, PageHeading, StatusPill } from '../components/MemberComponents';
 import { ErrorState, LoadingState } from '../components/ScreenState';
@@ -12,8 +12,27 @@ import { updateBeneficiaryProfile } from '../services/api';
 import colors from '../styles/colors';
 import globalStyles from '../styles/globalStyles';
 
+function MenuRow({ title, subtitle, onPress, destructive = false, disabled = false }) {
+  return (
+    <TouchableOpacity
+      style={styles.menuRow}
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+    >
+      <View style={styles.menuRowTextWrap}>
+        <Text style={[styles.menuRowTitle, destructive && styles.menuRowTitleDestructive]}>{title}</Text>
+        {subtitle ? <Text style={styles.menuRowSubtitle}>{subtitle}</Text> : null}
+      </View>
+      <Text style={styles.menuRowChevron}>›</Text>
+    </TouchableOpacity>
+  );
+}
+
 export default function AccountScreen() {
   const { session, signOut, storageWarning, updateSessionUser } = useAuth();
+  const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { data, loading, refreshing, errors, refresh, setProfileData } = useBeneficiaryData();
   const profile = data.profile;
@@ -32,11 +51,6 @@ export default function AccountScreen() {
   const [contactNumber, setContactNumber] = useState('');
   const [address, setAddress] = useState('');
   const [householdSize, setHouseholdSize] = useState('');
-  const [changePassword, setChangePassword] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const startEditing = () => {
     setSaveError('');
@@ -45,11 +59,6 @@ export default function AccountScreen() {
     setContactNumber(profile?.contact_number || '');
     setAddress(profile?.address || '');
     setHouseholdSize(profile?.household_size ? String(profile.household_size) : '');
-    setChangePassword(false);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setShowPassword(false);
     setIsEditing(true);
   };
 
@@ -69,21 +78,6 @@ export default function AccountScreen() {
       return;
     }
 
-    if (changePassword) {
-      if (!currentPassword) {
-        setSaveError('Please enter your current password.');
-        return;
-      }
-      if (newPassword.length < 8) {
-        setSaveError('New password must be at least 8 characters.');
-        return;
-      }
-      if (newPassword !== confirmPassword) {
-        setSaveError('New passwords do not match.');
-        return;
-      }
-    }
-
     setIsSaving(true);
     setSaveError('');
     setSaveSuccess('');
@@ -95,12 +89,6 @@ export default function AccountScreen() {
         address: address.trim() || null,
         household_size: householdSize.trim() ? parseInt(householdSize.trim(), 10) : null,
       };
-
-      if (changePassword) {
-        payload.current_password = currentPassword;
-        payload.new_password = newPassword;
-        payload.new_password_confirmation = confirmPassword;
-      }
 
       const updated = await updateBeneficiaryProfile(session.token, session.beneficiaryId, payload);
 
@@ -127,7 +115,7 @@ export default function AccountScreen() {
     <MemberLayout onRefresh={() => refresh('profile')} refreshing={isRefreshing}>
       <PageHeading
         title="My account"
-        subtitle="View and update your ReliefTrack beneficiary details."
+        subtitle="Your ReliefTrack beneficiary details."
       />
 
       {error ? <ErrorState message={error} onRetry={() => refresh('profile')} /> : null}
@@ -140,44 +128,58 @@ export default function AccountScreen() {
       ) : null}
 
       {profile && !isEditing ? (
-        <View style={styles.card}>
-          <View style={styles.nameRow}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {(profile.full_name || session.user.name || 'B').trim()[0].toUpperCase()}
-              </Text>
+        <>
+          <View style={styles.card}>
+            <View style={styles.nameRow}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {(profile.full_name || session.user.name || 'B').trim()[0].toUpperCase()}
+                </Text>
+              </View>
+              <View style={styles.nameCopy}>
+                <Text style={styles.name}>{profile.full_name || session.user.name}</Text>
+                <Text selectable style={styles.number}>{profile.beneficiary_no || session.beneficiaryNo}</Text>
+              </View>
+              <StatusPill status={profile.status} />
             </View>
-            <View style={styles.nameCopy}>
-              <Text style={styles.name}>{profile.full_name || session.user.name}</Text>
-              <Text selectable style={styles.number}>{profile.beneficiary_no || session.beneficiaryNo}</Text>
+
+            <View style={styles.details}>
+              <DetailRow label="Address" value={profile.address} />
+              <DetailRow label="Contact number" value={profile.contact_number} />
+              <DetailRow label="Household size" value={profile.household_size ? `${profile.household_size} members` : null} />
+              <DetailRow label="Priority type" value={profile.priority_type} />
             </View>
-            <StatusPill status={profile.status} />
           </View>
 
-          <View style={styles.details}>
-            <DetailRow label="Address" value={profile.address} />
-            <DetailRow label="Contact number" value={profile.contact_number} />
-            <DetailRow label="Household size" value={profile.household_size ? `${profile.household_size} members` : null} />
-            <DetailRow label="Priority type" value={profile.priority_type} />
+          <View style={styles.menuCard}>
+            <MenuRow
+              title="Edit profile details"
+              subtitle="Name, contact, address, household size"
+              onPress={startEditing}
+            />
+            <View style={styles.menuDivider} />
+            <MenuRow
+              title="Change password"
+              subtitle="Keep your account secure"
+              onPress={() => router.push('/update-password')}
+            />
+            <View style={styles.menuDivider} />
+            <MenuRow
+              title={isSigningOut ? 'Signing out…' : 'Sign out'}
+              onPress={handleSignOut}
+              destructive
+              disabled={isSigningOut}
+            />
           </View>
-
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={startEditing}
-            accessibilityRole="button"
-            accessibilityLabel="Edit account details"
-          >
-            <Text style={styles.editButtonText}>Edit profile details</Text>
-          </TouchableOpacity>
-        </View>
+        </>
       ) : null}
 
       {isEditing ? (
         <View style={styles.card}>
           <View style={styles.editHeader}>
-            <Text style={styles.editTitle}>Edit account details</Text>
+            <Text style={styles.editTitle}>Edit profile details</Text>
             <Text style={styles.editSubtitle}>
-              Update your contact info or change your password.
+              Update your contact information.
             </Text>
           </View>
 
@@ -228,59 +230,6 @@ export default function AccountScreen() {
             keyboardType="number-pad"
           />
 
-          {/* Password toggle section */}
-          <TouchableOpacity
-            style={styles.passwordToggleRow}
-            onPress={() => {
-              setSaveError('');
-              setChangePassword((prev) => !prev);
-            }}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: changePassword }}
-          >
-            <View style={[styles.checkbox, changePassword && styles.checkboxActive]}>
-              {changePassword ? <Text style={styles.checkmark}>✓</Text> : null}
-            </View>
-            <Text style={styles.passwordToggleText}>Change password</Text>
-          </TouchableOpacity>
-
-          {changePassword ? (
-            <View style={styles.passwordSection}>
-              <PasswordField
-                label="Current password"
-                value={currentPassword}
-                onChangeText={(v) => {
-                  setSaveError('');
-                  setCurrentPassword(v);
-                }}
-                visible={showPassword}
-                onToggleVisibility={() => setShowPassword((prev) => !prev)}
-                showVisibilityButton
-                placeholder="Enter current password"
-              />
-              <PasswordField
-                label="New password"
-                value={newPassword}
-                onChangeText={(v) => {
-                  setSaveError('');
-                  setNewPassword(v);
-                }}
-                visible={showPassword}
-                placeholder="At least 8 characters"
-              />
-              <PasswordField
-                label="Confirm new password"
-                value={confirmPassword}
-                onChangeText={(v) => {
-                  setSaveError('');
-                  setConfirmPassword(v);
-                }}
-                visible={showPassword}
-                placeholder="Re-enter new password"
-              />
-            </View>
-          ) : null}
-
           {saveError ? (
             <Text accessibilityRole="alert" style={globalStyles.errorText}>
               {saveError}
@@ -314,16 +263,9 @@ export default function AccountScreen() {
       ) : null}
 
       {!isEditing ? (
-        <>
-          <Text style={styles.help}>
-            Priority type and issuance of QR passes are managed by your Barangay Administrator.
-          </Text>
-          <PrimaryButton
-            title={isSigningOut ? 'Signing out…' : 'Sign out'}
-            onPress={handleSignOut}
-            disabled={isSigningOut}
-          />
-        </>
+        <Text style={styles.help}>
+          Priority type and issuance of QR passes are managed by your Barangay Administrator.
+        </Text>
       ) : null}
     </MemberLayout>
   );
@@ -333,7 +275,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
     borderColor: 'transparent',
-    borderRadius: 20,
+    borderRadius: 16,
     borderWidth: 0,
     padding: 20,
     shadowColor: '#3A2A1E',
@@ -341,18 +283,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   nameRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 16,
+    gap: 14,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: colors.reliefTint,
     borderColor: 'transparent',
     borderWidth: 0,
@@ -361,7 +303,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: colors.accent,
-    fontSize: 20,
+    fontSize: 21,
     fontWeight: '700',
   },
   nameCopy: {
@@ -369,89 +311,80 @@ const styles = StyleSheet.create({
   },
   name: {
     color: colors.text,
-    fontSize: 22,
-    fontWeight: '400',
-    lineHeight: 28,
+    fontSize: 20,
+    fontWeight: '700',
+    lineHeight: 26,
   },
   number: {
-    color: colors.accent,
+    color: colors.muted,
     fontSize: 14,
     fontWeight: '400',
     letterSpacing: 0.3,
-    marginTop: 6,
+    marginTop: 4,
   },
   details: {
     marginTop: 16,
   },
-  editButton: {
-    marginTop: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderWidth: 0,
-    borderColor: 'transparent',
-    borderRadius: 14,
+  menuCard: {
     backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: 'transparent',
+    borderRadius: 16,
+    borderWidth: 0,
+    marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#3A2A1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  editButtonText: {
+  menuRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  menuRowTextWrap: {
+    flex: 1,
+  },
+  menuRowTitle: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '400',
-    textDecorationLine: 'underline',
+  },
+  menuRowTitleDestructive: {
+    color: colors.error,
+  },
+  menuRowSubtitle: {
+    color: colors.muted,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  menuRowChevron: {
+    color: colors.muted,
+    fontSize: 22,
+    fontWeight: '300',
+    marginLeft: 12,
+  },
+  menuDivider: {
+    backgroundColor: colors.divider,
+    height: 1,
+    marginLeft: 20,
   },
   editHeader: {
     marginBottom: 20,
   },
   editTitle: {
     color: colors.text,
-    fontSize: 24,
-    fontWeight: '400',
-    marginBottom: 8,
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 6,
   },
   editSubtitle: {
     color: colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  passwordToggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 12,
-    gap: 12,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: colors.placeholder,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.white,
-  },
-  checkboxActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  checkmark: {
-    color: colors.white,
     fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 16,
-  },
-  passwordToggleText: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: '400',
-  },
-  passwordSection: {
-    backgroundColor: colors.white,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
+    lineHeight: 20,
   },
   actionButtons: {
     marginTop: 8,
@@ -477,9 +410,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.successBackground,
     borderColor: 'transparent',
     borderWidth: 0,
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
   },
   successTitle: {
     color: colors.accent,
@@ -488,9 +421,10 @@ const styles = StyleSheet.create({
   },
   warning: {
     backgroundColor: colors.warningBackground,
-    borderRadius: 20,
-    padding: 20,
-    marginTop: 20,
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 4,
+    marginBottom: 16,
   },
   warningTitle: {
     color: colors.progress,
@@ -505,10 +439,10 @@ const styles = StyleSheet.create({
   },
   help: {
     color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 4,
     marginBottom: 12,
   },
 });
