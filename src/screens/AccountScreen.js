@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { useAuth } from '../contexts/AuthContext';
 import MemberLayout from '../components/MemberLayout';
@@ -32,17 +32,10 @@ export default function AccountScreen() {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const { data, loading, refreshing, errors, refresh } = useBeneficiaryData();
+  const { data, loading, errors, refresh } = useBeneficiaryData();
   const profile = data.profile;
   const isLoading = loading.profile;
-  const isRefreshing = refreshing.profile;
   const error = errors.profile;
-
-  useFocusEffect(
-    useCallback(() => {
-      refresh('profile');
-    }, [refresh])
-  );
 
   const handleSignOut = async () => {
     setShowAlert(true);
@@ -55,7 +48,7 @@ export default function AccountScreen() {
   };
 
   return (
-    <MemberLayout onRefresh={() => refresh('profile')} refreshing={isRefreshing}>
+    <MemberLayout onRefresh={() => refresh('profile')}>
       <PageHeading
         title="My account"
         subtitle="Your ReliefTrack beneficiary details."
