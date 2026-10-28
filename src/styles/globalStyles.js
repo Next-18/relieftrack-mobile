@@ -122,10 +122,11 @@ const globalStyles = StyleSheet.create({
     color: colors.text,
   },
   showPasswordButtonCompact: {
-    minWidth: 48,
+    minWidth: 44,
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
   },
   primaryButtonCompact: {
     backgroundColor: colors.primary,
@@ -189,15 +190,11 @@ const globalStyles = StyleSheet.create({
     color: colors.text,
   },
   showPasswordButton: {
-    minWidth: 52,
+    minWidth: 48,
     alignItems: 'center',
-    paddingHorizontal: 10,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
     paddingVertical: 12,
-  },
-  showPasswordText: {
-    color: colors.accent,
-    fontSize: 13,
-    fontWeight: '400',
   },
 
   // Primary button — matches admin .submit
