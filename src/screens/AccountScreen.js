@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import { useAuth } from '../contexts/AuthContext';
 import MemberLayout from '../components/MemberLayout';
 import { DetailRow, PageHeading, StatusPill } from '../components/MemberComponents';
@@ -30,6 +31,7 @@ export default function AccountScreen() {
   const { session, signOut, storageWarning } = useAuth();
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const { data, loading, refreshing, errors, refresh } = useBeneficiaryData();
   const profile = data.profile;
   const isLoading = loading.profile;
@@ -43,6 +45,11 @@ export default function AccountScreen() {
   );
 
   const handleSignOut = async () => {
+    setShowAlert(true);
+  };
+
+  const confirmSignOut = async () => {
+    setShowAlert(false);
     setIsSigningOut(true);
     await signOut();
   };
@@ -95,7 +102,7 @@ export default function AccountScreen() {
             />
             <View style={styles.menuDivider} />
             <MenuRow
-              title={isSigningOut ? 'Signing out…' : 'Sign out'}
+              title="Sign out"
               onPress={handleSignOut}
               destructive
               disabled={isSigningOut}
@@ -114,6 +121,29 @@ export default function AccountScreen() {
       <Text style={styles.help}>
         Priority type and issuance of QR passes are managed by your Barangay Administrator.
       </Text>
+
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title="Sign out"
+        message="Are you sure you want to sign out?"
+        closeOnTouchOutside={true}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        cancelText="Cancel"
+        confirmText="Sign out"
+        confirmButtonColor="#D32F2F"
+        cancelButtonColor="#757575"
+        confirmButtonTextStyle={styles.alertButtonText}
+        cancelButtonTextStyle={styles.alertButtonText}
+        onCancelPressed={() => setShowAlert(false)}
+        onConfirmPressed={confirmSignOut}
+        titleStyle={styles.alertTitle}
+        messageStyle={styles.alertMessage}
+        contentContainerStyle={styles.alertContainer}
+        buttonContainerStyle={styles.alertButtonContainer}
+      />
     </MemberLayout>
   );
 }
@@ -201,7 +231,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   menuRowTitleDestructive: {
-    color: colors.error,
+    color: '#D32F2F',
   },
   menuRowSubtitle: {
     color: colors.muted,
@@ -244,5 +274,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
     marginBottom: 10,
+  },
+  alertContainer: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+  },
+  alertTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  alertMessage: {
+    color: colors.text,
+    fontSize: 15,
+  },
+  alertButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  alertButtonContainer: {
+    height: 50,
   },
 });

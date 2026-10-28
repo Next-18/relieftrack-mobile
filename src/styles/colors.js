@@ -40,6 +40,7 @@ const colors = {
   success: '#A8571F',            // Orange
   warning: '#CF7A3A',            // Orange
   error: '#A8571F',              // Orange
+  alertRed: '#FFB3B3',           // Light red for alerts
 };
 
 export default colors;
