@@ -27,9 +27,6 @@ export function DistributionCard({ distribution, compact = false }) {
           </View>
         ) : null}
       </View>
-      <View style={styles.chevron}>
-        <Text style={styles.chevronIcon}>›</Text>
-      </View>
     </View>
   );
 }
@@ -61,7 +58,6 @@ export function PackageCard({ packageItem }) {
           {packageItem.description ? (
             <Text style={styles.description}>{packageItem.description}</Text>
           ) : null}
-          <Text style={styles.packageAction}>{isExpanded ? 'Hide contents' : 'Tap to see package contents'}</Text>
         </View>
         <View style={styles.chevron}>
           <Text style={styles.chevronIcon}>{isExpanded ? '⌃' : '›'}</Text>
@@ -94,109 +90,103 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   packageRow: {
-    minHeight: 56,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   row: {
-    minHeight: 56,
+    minHeight: 48,
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   compactRow: {
-    paddingVertical: 10,
+    paddingVertical: 6,
   },
   rowContent: {
     flex: 1,
   },
   rowTop: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 8,
   },
   titleWrap: {
     flex: 1,
-    gap: 6,
+    gap: 4,
   },
   rowTitle: {
     color: colors.text,
     flex: 1,
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '400',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 2,
   },
   dateText: {
     color: colors.muted,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '400',
   },
   categoryPill: {
     alignSelf: 'flex-start',
     backgroundColor: colors.reliefTint,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
   },
   categoryText: {
     color: colors.accent,
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '400',
   },
   description: {
     color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 6,
-  },
-  packageAction: {
-    color: colors.accent,
-    fontSize: 13,
-    fontWeight: '700',
-    marginTop: 8,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 4,
   },
   packageContents: {
     backgroundColor: colors.white,
-    borderRadius: 14,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 6,
+    marginBottom: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  contentsTitle: { color: colors.text, fontSize: 15, fontWeight: '700', marginBottom: 8 },
-  contentsRow: { alignItems: 'flex-start', flexDirection: 'row', gap: 8, paddingVertical: 4 },
-  contentsBullet: { color: colors.accent, fontSize: 16, lineHeight: 20 },
-  contentsText: { color: colors.text, flex: 1, fontSize: 14, lineHeight: 20 },
-  contentsEmpty: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  contentsTitle: { color: colors.text, fontSize: 13, fontWeight: '700', marginBottom: 6 },
+  contentsRow: { alignItems: 'flex-start', flexDirection: 'row', gap: 6, paddingVertical: 2 },
+  contentsBullet: { color: colors.accent, fontSize: 14, lineHeight: 18 },
+  contentsText: { color: colors.text, flex: 1, fontSize: 12, lineHeight: 16 },
+  contentsEmpty: { color: colors.muted, fontSize: 11, lineHeight: 15 },
   noteBox: {
     backgroundColor: colors.white,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginTop: 6,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 4,
   },
   noteText: {
     color: colors.text,
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 15,
     fontStyle: 'italic',
   },
   chevron: {
-    marginLeft: 12,
-    paddingHorizontal: 4,
+    marginLeft: 8,
+    paddingHorizontal: 3,
   },
   chevronIcon: {
     color: colors.muted,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '300',
   },
 });

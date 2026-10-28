@@ -14,8 +14,9 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 
-const activeColor = '#3687FF';
-const inactiveColor = '#A4A7AF';
+const activeColor = '#2563EB';
+const inactiveIconColor = '#94A3B8';
+const inactiveTextColor = '#64748B';
 
 function QrIcon() {
   return (
@@ -31,10 +32,9 @@ function QrIcon() {
 
 function TabButton({ route, state, descriptors }) {
   const router = useRouter();
-  const [hovered, setHovered] = useState(false);
   const options = descriptors[route.key].options;
   const focused = state.routes[state.index]?.key === route.key;
-  const color = focused ? activeColor : inactiveColor;
+  const color = focused ? activeColor : inactiveIconColor;
   const label = options.tabBarLabel ?? options.title ?? route.name;
 
   const onPress = () => {
@@ -47,15 +47,9 @@ function TabButton({ route, state, descriptors }) {
       accessibilityLabel={options.tabBarAccessibilityLabel || String(label)}
       accessibilityState={{ selected: focused }}
       onPress={onPress}
-      onHoverIn={() => setHovered(true)}
-      onHoverOut={() => setHovered(false)}
-      style={({ pressed }) => [
-        styles.tabButton,
-        focused && styles.tabButtonFocused,
-        (pressed || hovered) && styles.tabButtonHighlighted,
-      ]}
+      style={styles.tabButton}
     >
-      {options.tabBarIcon?.({ focused, color, size: 22 })}
+      {options.tabBarIcon?.({ focused, color, size: 18 })}
       <Text numberOfLines={1} style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
     </Pressable>
   );
@@ -150,50 +144,38 @@ export default function MemberTabBar({ state, descriptors }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 14,
-    paddingTop: 12,
+    borderTopColor: '#E5E7EB',
+    borderTopWidth: 1,
+    paddingHorizontal: 10,
+    paddingTop: 8,
   },
   bar: {
-    alignItems: 'flex-end',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5EAF0',
-    borderRadius: 38,
-    borderWidth: 1,
     flexDirection: 'row',
-    height: 72,
+    height: 56,
     justifyContent: 'space-around',
-    paddingHorizontal: 6,
+    alignItems: 'flex-end',
   },
   tabButton: {
     alignItems: 'center',
     flex: 1,
-    height: 64,
     justifyContent: 'center',
-    paddingHorizontal: 2,
-    borderRadius: 20,
-  },
-  tabButtonFocused: {
-    backgroundColor: '#EAF2FF',
-  },
-  tabButtonHighlighted: {
-    backgroundColor: '#F3F7FC',
+    paddingVertical: 5,
   },
   tabLabel: {
-    color: inactiveColor,
-    fontSize: 12,
-    marginTop: 3,
+    color: inactiveTextColor,
+    fontSize: 10,
+    marginTop: 2,
   },
   tabLabelActive: {
     color: activeColor,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   qrTabButton: {
     alignItems: 'center',
     flex: 1,
-    height: 80,
+    height: 64,
     justifyContent: 'flex-end',
-    paddingBottom: 4,
-    borderRadius: 24,
+    paddingBottom: 3,
   },
   qrTabButtonHighlighted: {
     backgroundColor: '#EAF2FF',
@@ -202,20 +184,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: activeColor,
     borderColor: '#FFFFFF',
-    borderRadius: 40,
-    borderWidth: 4,
-    height: 80,
+    borderRadius: 32,
+    borderWidth: 3,
+    height: 64,
     justifyContent: 'center',
     position: 'absolute',
-    top: -28,
-    width: 80,
+    top: -24,
+    width: 64,
   },
   qrTabCircleHovered: {
     backgroundColor: '#2D70D4',
   },
   qrTabLabel: {
     color: '#52657F',
-    fontSize: 13,
+    fontSize: 11,
     marginTop: 1,
   },
   modalBackdrop: {
@@ -223,51 +205,51 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.72)',
     flex: 1,
     justifyContent: 'center',
-    padding: 24,
+    padding: 20,
   },
   qrModal: {
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    borderRadius: 12,
     maxWidth: 380,
-    padding: 24,
+    padding: 16,
     width: '100%',
   },
   modalTitle: {
     color: '#17191E',
-    fontSize: 21,
+    fontSize: 18,
     fontWeight: '700',
   },
   modalSubtitle: {
     color: '#666B75',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 18,
-    marginTop: 6,
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 14,
+    marginTop: 4,
     textAlign: 'center',
   },
   qrFrame: {
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderColor: '#E7E9ED',
-    borderRadius: 18,
+    borderRadius: 8,
     borderWidth: 1,
-    padding: 16,
+    padding: 12,
   },
   beneficiaryNumber: {
     color: '#17191E',
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '700',
     letterSpacing: 1,
-    marginTop: 14,
+    marginTop: 12,
   },
   closeButton: {
     alignItems: 'center',
     backgroundColor: activeColor,
-    borderRadius: 14,
-    marginTop: 20,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
   },
-  closeButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
+  closeButtonText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
 });

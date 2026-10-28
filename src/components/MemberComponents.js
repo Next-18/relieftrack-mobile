@@ -125,30 +125,38 @@ export function AnnouncementSection({ notifications = [], onMarkRead, expanded =
   );
 }
 
+const STATUS_GLYPHS = {
+  released: { icon: 'check', color: colors.accent, stroke: 3.4 },
+  available: { icon: 'check', color: colors.accent, stroke: 3.4 },
+  pending: { icon: 'clock', color: colors.progress, stroke: 2.8 },
+  cancelled: { icon: 'x', color: '#D64545', stroke: 3.2 },
+};
+
 export function StatusPill({ status }) {
   const normalizedStatus = String(status || 'Unknown').toLowerCase();
-  const isPositive = ['released', 'active', 'available'].includes(normalizedStatus);
-  const isPending = normalizedStatus === 'pending';
+
+  if (normalizedStatus === 'active') {
+    return (
+      <View style={styles.statusPill}>
+        <View style={styles.dotPositive} />
+        <Text style={styles.statusPillText}>{status || 'Active'}</Text>
+      </View>
+    );
+  }
+
+  const glyph = STATUS_GLYPHS[normalizedStatus] || { icon: 'minus', color: colors.muted, stroke: 3 };
 
   return (
-    <View style={[
-      styles.statusPill,
-      isPositive && styles.positivePill,
-      isPending && styles.pendingPill,
-      !isPositive && !isPending && styles.neutralPill,
-    ]}>
-      <View style={[
-        styles.dot,
-        isPositive && styles.dotPositive,
-        isPending && styles.dotPending,
-        !isPositive && !isPending && styles.dotNeutral,
-      ]} />
-      <Text style={[
-        styles.statusText,
-        isPositive && styles.positiveText,
-        isPending && styles.pendingText,
-        !isPositive && !isPending && styles.neutralText,
-      ]}>
+    <View style={styles.statusIconRow}>
+      <View style={[styles.statusGlyph, { borderColor: glyph.color }]}>
+        <Svg width={9} height={9} viewBox="0 0 24 24" fill="none" stroke={glyph.color} strokeWidth={glyph.stroke} strokeLinecap="round" strokeLinejoin="round">
+          {glyph.icon === 'clock' ? <Path d="M12 6v6l4 2" /> : null}
+          {glyph.icon === 'check' ? <Path d="M20 6L9 17l-5-5" /> : null}
+          {glyph.icon === 'x' ? <Path d="M18 6L6 18M6 6l12 12" /> : null}
+          {glyph.icon === 'minus' ? <Path d="M5 12h14" /> : null}
+        </Svg>
+      </View>
+      <Text style={[styles.statusLabel, { color: glyph.color }]}>
         {status || 'Unknown'}
       </Text>
     </View>
@@ -182,185 +190,181 @@ const styles = StyleSheet.create({
   },
   announcementHeading: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   bellWrap: {
-    padding: 4,
+    padding: 3,
   },
   bellBadge: {
     alignItems: 'center',
     backgroundColor: '#D64545',
     borderColor: '#FFFFFF',
-    borderRadius: 9,
-    borderWidth: 1.5,
-    height: 18,
+    borderRadius: 7,
+    borderWidth: 1,
+    height: 16,
     justifyContent: 'center',
-    minWidth: 18,
-    paddingHorizontal: 3,
+    minWidth: 16,
+    paddingHorizontal: 2,
     position: 'absolute',
     right: -2,
-    top: -4,
+    top: -3,
   },
   bellBadgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
-    lineHeight: 12,
+    lineHeight: 11,
   },
   showMoreButton: {
     alignItems: 'center',
     borderTopColor: '#F1D38B',
     borderTopWidth: 1,
-    marginTop: 10,
-    paddingTop: 10,
+    marginTop: 8,
+    paddingTop: 8,
   },
   showMoreText: {
     color: '#674600',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
   },
   announcementCard: {
     backgroundColor: '#FFF8E8',
     borderColor: '#F1D38B',
-    borderRadius: 14,
+    borderRadius: 8,
     borderWidth: 1,
-    marginBottom: 10,
-    padding: 14,
+    marginBottom: 8,
+    padding: 10,
   },
-  announcementTitle: { color: '#674600', fontSize: 14, fontWeight: '700' },
-  announcementText: { color: '#7B5B1E', fontSize: 13, lineHeight: 19, marginTop: 4 },
+  announcementTitle: { color: '#674600', fontSize: 13, fontWeight: '700' },
+  announcementText: { color: '#7B5B1E', fontSize: 12, lineHeight: 16, marginTop: 3 },
   announcementEmpty: {
     backgroundColor: colors.white,
     borderColor: colors.border,
-    borderRadius: 14,
+    borderRadius: 8,
     borderWidth: 1,
-    padding: 14,
+    padding: 10,
   },
-  announcementEmptyText: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  announcementEmptyText: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   pendingNotice: {
     alignItems: 'flex-start',
     backgroundColor: '#FFF8E8',
     borderColor: '#F1D38B',
-    borderRadius: 14,
+    borderRadius: 8,
     borderWidth: 1,
     flexDirection: 'row',
-    gap: 11,
-    marginBottom: 16,
-    padding: 14,
+    gap: 8,
+    marginBottom: 12,
+    padding: 10,
   },
   pendingNoticeIcon: {
     alignItems: 'center',
     backgroundColor: '#F6E5B7',
-    borderRadius: 12,
-    height: 28,
+    borderRadius: 8,
+    height: 24,
     justifyContent: 'center',
-    width: 28,
+    width: 24,
   },
-  pendingNoticeIconText: { color: '#855500', fontSize: 16, fontWeight: '700' },
-  pendingNoticeCopy: { flex: 1, gap: 4 },
-  pendingNoticeTitle: { color: '#674600', fontSize: 14, fontWeight: '700' },
-  pendingNoticeText: { color: '#7B5B1E', fontSize: 13, lineHeight: 19 },
+  pendingNoticeIconText: { color: '#855500', fontSize: 14, fontWeight: '700' },
+  pendingNoticeCopy: { flex: 1, gap: 3 },
+  pendingNoticeTitle: { color: '#674600', fontSize: 13, fontWeight: '700' },
+  pendingNoticeText: { color: '#7B5B1E', fontSize: 12, lineHeight: 16 },
   pickupQrButton: {
     alignSelf: 'flex-start',
     backgroundColor: colors.accent,
-    borderRadius: 10,
-    marginTop: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    borderRadius: 6,
+    marginTop: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  pickupQrButtonText: { color: colors.white, fontSize: 14, fontWeight: '700' },
-  markReadButton: { alignSelf: 'flex-start', marginTop: 5 },
-  markReadText: { color: '#674600', fontSize: 12, fontWeight: '700' },
+  pickupQrButtonText: { color: colors.white, fontSize: 12, fontWeight: '700' },
+  markReadButton: { alignSelf: 'flex-start', marginTop: 4 },
+  markReadText: { color: '#674600', fontSize: 11, fontWeight: '700' },
   pageHeading: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   pageTitle: {
     color: colors.text,
-    fontSize: 32,
+    fontSize: 22,
     fontWeight: '700',
   },
   pageSubtitle: {
     color: colors.muted,
-    fontSize: 16,
-    lineHeight: 22,
-    marginTop: 8,
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 4,
   },
   sectionHeading: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 24,
-    marginBottom: 12,
+    marginTop: 16,
+    marginBottom: 8,
   },
   sectionTitle: {
     color: colors.text,
-    fontSize: 18,
-    fontWeight: '400',
+    fontSize: 15,
+    fontWeight: '500',
   },
   statusPill: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    gap: 6,
-    borderWidth: 0,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    backgroundColor: colors.reliefTint,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    gap: 5,
   },
   dotPositive: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: colors.accent,
   },
-  dotPending: {
-    backgroundColor: colors.progress,
-  },
-  dotNeutral: {
-    backgroundColor: colors.muted,
-  },
-  positivePill: {
-    backgroundColor: colors.reliefTint,
-  },
-  pendingPill: {
-    backgroundColor: colors.warningBackground,
-  },
-  neutralPill: {
-    backgroundColor: colors.dirtyWhiteDarker,
-  },
-  statusText: {
-    fontSize: 13,
+  statusPillText: {
+    color: colors.accent,
+    fontSize: 11,
     fontWeight: '400',
     textTransform: 'capitalize',
   },
-  positiveText: {
-    color: colors.accent,
+  statusIconRow: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    minHeight: 18,
   },
-  pendingText: {
-    color: colors.progress,
+  statusGlyph: {
+    alignItems: 'center',
+    borderRadius: 6,
+    borderWidth: 1,
+    height: 14,
+    justifyContent: 'center',
+    width: 14,
   },
-  neutralText: {
-    color: colors.muted,
+  statusLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 18,
+    textTransform: 'capitalize',
   },
   detailRow: {
     borderBottomColor: colors.divider,
     borderBottomWidth: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
   detailLabel: {
     color: colors.muted,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '400',
-    marginBottom: 4,
+    marginBottom: 3,
   },
   detailValue: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '400',
-    lineHeight: 22,
+    lineHeight: 20,
   },
 });

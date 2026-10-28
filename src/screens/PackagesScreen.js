@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import MemberLayout from '../components/MemberLayout';
 import { PageHeading } from '../components/MemberComponents';
 import { PackageCard } from '../components/RecordCards';
@@ -21,15 +21,6 @@ export default function PackagesScreen() {
         subtitle="See the packages your Barangay has prepared."
       />
 
-      <View style={styles.note}>
-        <View style={styles.noteContent}>
-          <Text style={styles.noteTitle}>How to collect a package</Text>
-          <Text style={styles.noteText}>
-            Your Barangay Administrator assigns packages. Assigned packages appear under My Relief. At pickup, tap the center QR button in the navigation and show the code to staff.
-          </Text>
-        </View>
-      </View>
-
       {errors.distributions ? (
         <ErrorState message={errors.distributions} onRetry={() => refresh('distributions')} />
       ) : null}
@@ -48,55 +39,21 @@ export default function PackagesScreen() {
           message="Check back soon or contact your Barangay Administrator for the upcoming relief distribution schedule."
         />
       ) : null}
+
+      <Text style={styles.help}>
+        Assigned packages appear under My Relief. At pickup, show your QR code to staff using the center QR button.
+      </Text>
     </MemberLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  note: {
-    backgroundColor: colors.white,
-    borderColor: 'transparent',
-    borderRadius: 20,
-    borderWidth: 0,
-    padding: 20,
-    marginBottom: 20,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 16,
-    shadowColor: '#3A2A1E',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  noteIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.reliefTint,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  noteIcon: {
-    color: colors.accent,
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  noteContent: {
-    flex: 1,
-  },
-  noteTitle: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '400',
-    marginBottom: 4,
-  },
-  noteText: {
+  help: {
     color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 19,
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 8,
   },
 });
