@@ -31,7 +31,7 @@ const colors = {
   primaryLight: '#FBDDC2',       // Same as primary
 
   // Accent colors - GREEN for active elements only
-  accent: '#2E7D32',             // Accent text / links / active icons (dark green) - ACTIVE
+  accent: '#66BB6A',             // Accent text / links / active icons (light green) - ACTIVE
   progress: '#CF7A3A',           // Progress / tracker accent (orange)
   activeTab: '#E8F5E9',          // Active tab pill (light green) - ACTIVE
   inactiveTracker: '#F4E9DB',    // Inactive tracker lines/dots (orange)
