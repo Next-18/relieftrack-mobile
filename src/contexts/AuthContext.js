@@ -17,7 +17,7 @@ function makeSession(token, account, fallbackUser, fallbackNumber) {
   const beneficiaryId = account?.beneficiary_id;
   const beneficiaryNo = account?.email || fallbackUser?.beneficiary_no || fallbackNumber;
   const name = account?.name || fallbackUser?.name;
-  const passwordChanged = account?.password_changed ?? fallbackUser?.password_changed ?? true;
+  const passwordChanged = account?.password_changed ?? fallbackUser?.password_changed ?? false;
 
   if (!token || !beneficiaryId || !beneficiaryNo || !name) {
     throw new Error('ReliefTrack did not return a complete beneficiary account. Please contact your Barangay Administrator.');
