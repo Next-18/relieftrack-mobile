@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
@@ -9,7 +10,7 @@ import {
   LoadingState,
 } from '../components/ScreenState';
 import MemberLayout from '../components/MemberLayout';
-import { AnnouncementSection, SectionHeading, StatusPill } from '../components/MemberComponents';
+import { AnnouncementSection, SectionHeading } from '../components/MemberComponents';
 import { DistributionCard } from '../components/RecordCards';
 import colors from '../styles/colors';
 
@@ -17,7 +18,7 @@ export default function HomeScreen() {
   const { session } = useAuth();
   const { data, loading, refreshing, errors, refresh, markNotificationRead } = useBeneficiaryData();
 
-  const name = (session.user.name ?? '').trim().split(/\s+/)[0] || 'there';
+  const barangayName = session.user.name || 'Barangay';
   const { profile, distributions, packages, notifications } = data;
   const releasedCount = distributions?.filter((item) => item.status === 'Released').length;
   const pendingAssignments = distributions?.filter((item) => item.status === 'Assigned') || [];
@@ -27,14 +28,22 @@ export default function HomeScreen() {
       onRefresh={() => refresh()}
       refreshing={refreshing.profile || refreshing.distributions || refreshing.packages || refreshing.notifications}
     >
-      {/* Welcome Section */}
-      <View style={styles.welcomeSection}>
-        <View>
-          <Text style={styles.welcomeText}>Welcome, {name}</Text>
-          <Text style={styles.beneficiaryId}>{session.beneficiaryNo}</Text>
+      <LinearGradient
+        colors={[colors.blueLight, colors.white]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.welcomeBanner}
+      >
+        <Image
+          source={require('../../assets/welcome-banner.png')}
+          style={styles.welcomeImage}
+          resizeMode="cover"
+        />
+        <View style={styles.welcomeCopy}>
+          <Text style={styles.welcomeText}>Welcome, {barangayName}!</Text>
+          <Text style={styles.beneficiaryId}>Track your relief packages and pickup status</Text>
         </View>
-        {profile?.status ? <StatusPill status={profile.status} /> : null}
-      </View>
+      </LinearGradient>
 
       {/* Yellow Info Card */}
       {pendingAssignments.length > 0 && (
@@ -130,25 +139,59 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  welcomeSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  welcomeBanner: {
+    borderRadius: 16,
     marginBottom: 16,
+    minHeight: 124,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  welcomeImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.6,
+  },
+  welcomeCopy: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingVertical: 16,
+    gap: 6,
+    zIndex: 1,
+    maxWidth: '70%',
   },
   announcementWrapper: {
     marginBottom: 16,
   },
   welcomeText: {
     color: colors.text,
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: '700',
     marginBottom: 4,
+    textShadowColor: 'rgba(255, 255, 255, 1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
   },
   beneficiaryId: {
-    color: colors.muted,
+    color: colors.text,
     fontSize: 13,
     fontWeight: '400',
+    lineHeight: 18,
+    textShadowColor: 'rgba(255, 255, 255, 1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
   },
   infoCard: {
     backgroundColor: colors.warningBackground,

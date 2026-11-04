@@ -23,7 +23,10 @@ export default function AppLayout({ children }) {
                 style={styles.logo}
                 resizeMode="contain"
               />
-              <Text style={styles.appName}>ReliefTrack</Text>
+              <Text style={styles.appName}>
+                <Text style={styles.brandRelief}>Relief</Text>
+                <Text style={styles.brandTrack}>Track</Text>
+              </Text>
               <Text style={styles.subtitle}>Disaster Relief Inventory Tracker</Text>
             </View>
           </View>
@@ -74,8 +77,13 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 4,
+  },
+  brandRelief: {
+    color: colors.blue,
+  },
+  brandTrack: {
+    color: colors.greenDark,
   },
   subtitle: {
     fontSize: 14,

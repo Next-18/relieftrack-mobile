@@ -29,8 +29,13 @@ const globalStyles = StyleSheet.create({
   appName: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
     marginBottom: 2,
+  },
+  brandRelief: {
+    color: colors.blue,
+  },
+  brandTrack: {
+    color: colors.greenDark,
   },
   subtitle: {
     fontSize: 13,

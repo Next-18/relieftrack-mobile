@@ -10,7 +10,10 @@ export default function AppHeader() {
         style={globalStyles.logoImage}
         resizeMode="contain"
       />
-      <Text style={globalStyles.appName}>ReliefTrack</Text>
+      <Text style={globalStyles.appName}>
+        <Text style={globalStyles.brandRelief}>Relief</Text>
+        <Text style={globalStyles.brandTrack}>Track</Text>
+      </Text>
       <Text style={globalStyles.subtitle}>Disaster Relief Inventory Tracker</Text>
     </View>
   );

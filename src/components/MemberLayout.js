@@ -30,7 +30,10 @@ export default function MemberLayout({ children, onRefresh, refreshing = false }
             <View style={styles.brand}>
               <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
               <View>
-                <Text style={styles.brandName}>ReliefTrack</Text>
+                <Text style={styles.brandName}>
+                  <Text style={styles.brandRelief}>Relief</Text>
+                  <Text style={styles.brandTrack}>Track</Text>
+                </Text>
                 <Text style={styles.brandCaption}>BENEFICIARY PORTAL</Text>
               </View>
             </View>
@@ -78,9 +81,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   brandName: {
-    color: colors.text,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  brandRelief: {
+    color: colors.blue,
+  },
+  brandTrack: {
+    color: colors.greenDark,
   },
   brandCaption: {
     color: colors.muted,

@@ -15,8 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import colors from '../styles/colors';
 
-const activeColor = colors.primary;
-const inactiveIconColor = colors.disabled;
+const activeColor = colors.blue;
+const inactiveIconColor = colors.muted;
 const inactiveTextColor = colors.muted;
 
 function QrIcon() {
@@ -48,7 +48,7 @@ function TabButton({ route, state, descriptors }) {
       accessibilityLabel={options.tabBarAccessibilityLabel || String(label)}
       accessibilityState={{ selected: focused }}
       onPress={onPress}
-      style={styles.tabButton}
+      style={[styles.tabButton, focused && styles.tabButtonActive]}
     >
       {options.tabBarIcon?.({ focused, color, size: 18 })}
       <Text numberOfLines={1} style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
@@ -161,9 +161,14 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     alignItems: 'center',
+    borderRadius: 12,
     flex: 1,
     justifyContent: 'center',
+    marginHorizontal: 2,
     paddingVertical: 6,
+  },
+  tabButtonActive: {
+    backgroundColor: colors.blueLight,
   },
   tabLabel: {
     color: inactiveTextColor,
@@ -211,7 +216,7 @@ const styles = StyleSheet.create({
   },
   modalBackdrop: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     padding: 20,

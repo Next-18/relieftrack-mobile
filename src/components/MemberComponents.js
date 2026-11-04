@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import colors from '../styles/colors';
 
 export function PageHeading({ title, subtitle }) {
@@ -42,6 +42,34 @@ export function PendingAssignmentNotice({ assignments = [], onShowQr }) {
         ) : null}
       </View>
     </View>
+  );
+}
+
+function ClockIcon({ size = 16, color = colors.warning }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Circle cx="12" cy="12" r="10" />
+      <Path d="M12 6v6l4 2" />
+    </Svg>
+  );
+}
+
+function CheckCircleIcon({ size = 16, color = colors.success }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Circle cx="12" cy="12" r="10" />
+      <Path d="M9 12l2 2 4-4" />
+    </Svg>
+  );
+}
+
+function XCircleIcon({ size = 16, color = colors.error }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Circle cx="12" cy="12" r="10" />
+      <Path d="M15 9l-6 6" />
+      <Path d="M9 9l6 6" />
+    </Svg>
   );
 }
 
@@ -117,12 +145,37 @@ const STATUS_TONES = {
   canceled: 'danger',
 };
 
+const STATUS_COLORS = {
+  success: colors.success,
+  pending: colors.warning,
+  danger: colors.error,
+  neutral: colors.muted,
+};
+
 export function StatusPill({ status }) {
   const tone = STATUS_TONES[String(status || '').toLowerCase()] || 'neutral';
+  const color = STATUS_COLORS[tone];
+
+  let IconComponent;
+  const statusLower = String(status || '').toLowerCase();
+
+  if (statusLower === 'active') {
+    // Show just a green dot for active status
+    return <View style={[styles.statusDot, { backgroundColor: color }]} />;
+  }
+
+  if (tone === 'pending') {
+    IconComponent = ClockIcon;
+  } else if (tone === 'success') {
+    IconComponent = CheckCircleIcon;
+  } else if (tone === 'danger') {
+    IconComponent = XCircleIcon;
+  }
 
   return (
-    <View style={[styles.statusPill, styles[`statusPill_${tone}`]]}>
-      <Text style={[styles.statusPillText, styles[`statusText_${tone}`]]}>{status || 'Unknown'}</Text>
+    <View style={styles.statusMark}>
+      {IconComponent ? <IconComponent color={color} /> : <View style={[styles.statusDot, { backgroundColor: color }]} />}
+      <Text style={[styles.statusMarkText, { color }]}>{status || 'Unknown'}</Text>
     </View>
   );
 }
@@ -271,25 +324,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
-  statusPill: {
+  statusMark: {
+    alignItems: 'center',
     alignSelf: 'flex-start',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: 6,
   },
-  statusPill_success: { backgroundColor: colors.greenLight },
-  statusPill_pending: { backgroundColor: colors.warningBackground },
-  statusPill_danger: { backgroundColor: colors.errorBackground },
-  statusPill_neutral: { backgroundColor: colors.blueLight },
-  statusPillText: {
-    fontSize: 12,
+  statusDot: {
+    borderRadius: 4,
+    height: 8,
+    width: 8,
+  },
+  statusMarkText: {
+    fontSize: 13,
     fontWeight: '700',
-    textTransform: 'capitalize',
   },
-  statusText_success: { color: colors.success },
-  statusText_pending: { color: colors.warningText },
-  statusText_danger: { color: colors.error },
-  statusText_neutral: { color: colors.muted },
   detailRow: {
     borderBottomColor: colors.divider,
     borderBottomWidth: 1,
