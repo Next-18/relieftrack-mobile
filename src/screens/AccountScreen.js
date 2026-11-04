@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 0,
     padding: 14,
-    shadowColor: '#3A2A1E',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     marginBottom: 14,
     overflow: 'hidden',
-    shadowColor: '#3A2A1E',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   menuRowTitleDestructive: {
-    color: '#D32F2F',
+    color: colors.error,
   },
   menuRowSubtitle: {
     color: colors.muted,
@@ -310,13 +310,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   alertButtonCancel: {
-    backgroundColor: '#757575',
+    backgroundColor: colors.muted,
   },
   alertButtonConfirm: {
-    backgroundColor: '#D32F2F',
+    backgroundColor: colors.error,
   },
   alertButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 15,
     fontWeight: '600',
   },

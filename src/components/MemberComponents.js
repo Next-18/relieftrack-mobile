@@ -47,7 +47,7 @@ export function PendingAssignmentNotice({ assignments = [], onShowQr }) {
 
 function BellIcon({ size = 20 }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#40332B" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={colors.blue} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
       <Path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </Svg>
@@ -104,40 +104,25 @@ export function AnnouncementSection({ notifications = [], onMarkRead }) {
   );
 }
 
-const STATUS_GLYPHS = {
-  released: { icon: 'check', color: colors.accent, stroke: 3.4 },
-  available: { icon: 'check', color: colors.accent, stroke: 3.4 },
-  pending: { icon: 'clock', color: colors.progress, stroke: 2.8 },
-  cancelled: { icon: 'x', color: '#D64545', stroke: 3.2 },
+const STATUS_TONES = {
+  released: 'success',
+  available: 'success',
+  active: 'success',
+  completed: 'success',
+  fulfilled: 'success',
+  pending: 'pending',
+  assigned: 'pending',
+  voided: 'danger',
+  cancelled: 'danger',
+  canceled: 'danger',
 };
 
 export function StatusPill({ status }) {
-  const normalizedStatus = String(status || 'Unknown').toLowerCase();
-
-  if (normalizedStatus === 'active') {
-    return (
-      <View style={styles.statusPill}>
-        <View style={styles.dotPositive} />
-        <Text style={styles.statusPillText}>{status || 'Active'}</Text>
-      </View>
-    );
-  }
-
-  const glyph = STATUS_GLYPHS[normalizedStatus] || { icon: 'minus', color: colors.muted, stroke: 3 };
+  const tone = STATUS_TONES[String(status || '').toLowerCase()] || 'neutral';
 
   return (
-    <View style={styles.statusIconRow}>
-      <View style={[styles.statusGlyph, { borderColor: glyph.color }]}>
-        <Svg width={9} height={9} viewBox="0 0 24 24" fill="none" stroke={glyph.color} strokeWidth={glyph.stroke} strokeLinecap="round" strokeLinejoin="round">
-          {glyph.icon === 'clock' ? <Path d="M12 6v6l4 2" /> : null}
-          {glyph.icon === 'check' ? <Path d="M20 6L9 17l-5-5" /> : null}
-          {glyph.icon === 'x' ? <Path d="M18 6L6 18M6 6l12 12" /> : null}
-          {glyph.icon === 'minus' ? <Path d="M5 12h14" /> : null}
-        </Svg>
-      </View>
-      <Text style={[styles.statusLabel, { color: glyph.color }]}>
-        {status || 'Unknown'}
-      </Text>
+    <View style={[styles.statusPill, styles[`statusPill_${tone}`]]}>
+      <Text style={[styles.statusPillText, styles[`statusText_${tone}`]]}>{status || 'Unknown'}</Text>
     </View>
   );
 }
@@ -178,8 +163,8 @@ const styles = StyleSheet.create({
   },
   bellBadge: {
     alignItems: 'center',
-    backgroundColor: '#D64545',
-    borderColor: '#FFFFFF',
+    backgroundColor: colors.error,
+    borderColor: colors.white,
     borderRadius: 7,
     borderWidth: 1,
     height: 16,
@@ -191,33 +176,33 @@ const styles = StyleSheet.create({
     top: -3,
   },
   bellBadgeText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 9,
     fontWeight: '700',
     lineHeight: 11,
   },
   showMoreButton: {
     alignItems: 'center',
-    borderTopColor: '#F1D38B',
+    borderTopColor: colors.border,
     borderTopWidth: 1,
     marginTop: 8,
     paddingTop: 8,
   },
   showMoreText: {
-    color: '#674600',
+    color: colors.blue,
     fontSize: 12,
     fontWeight: '700',
   },
   announcementCard: {
-    backgroundColor: '#FFF8E8',
-    borderColor: '#F1D38B',
-    borderRadius: 8,
+    backgroundColor: colors.blueLight,
+    borderColor: colors.border,
+    borderRadius: 12,
     borderWidth: 1,
     marginBottom: 8,
     padding: 10,
   },
-  announcementTitle: { color: '#674600', fontSize: 13, fontWeight: '700' },
-  announcementText: { color: '#7B5B1E', fontSize: 12, lineHeight: 16, marginTop: 3 },
+  announcementTitle: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  announcementText: { color: colors.muted, fontSize: 12, lineHeight: 16, marginTop: 3 },
   announcementEmpty: {
     backgroundColor: colors.white,
     borderColor: colors.border,
@@ -229,7 +214,7 @@ const styles = StyleSheet.create({
   pendingNotice: {
     alignItems: 'flex-start',
     backgroundColor: colors.warningBackground,
-    borderColor: '#FCD34D',
+    borderColor: colors.warningBorder,
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: 'row',
@@ -239,27 +224,27 @@ const styles = StyleSheet.create({
   },
   pendingNoticeIcon: {
     alignItems: 'center',
-    backgroundColor: '#FDE68A',
+    backgroundColor: colors.warningBorder,
     borderRadius: 8,
     height: 32,
     justifyContent: 'center',
     width: 32,
   },
-  pendingNoticeIconText: { color: '#92400E', fontSize: 18, fontWeight: '700' },
+  pendingNoticeIconText: { color: colors.warningText, fontSize: 18, fontWeight: '700' },
   pendingNoticeCopy: { flex: 1, gap: 4 },
-  pendingNoticeTitle: { color: '#92400E', fontSize: 14, fontWeight: '600' },
-  pendingNoticeText: { color: '#B45309', fontSize: 12, lineHeight: 16 },
+  pendingNoticeTitle: { color: colors.warningText, fontSize: 14, fontWeight: '600' },
+  pendingNoticeText: { color: colors.warningText, fontSize: 12, lineHeight: 16 },
   pickupQrButton: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     borderRadius: 8,
     marginTop: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  pickupQrButtonText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
+  pickupQrButtonText: { color: colors.white, fontSize: 13, fontWeight: '600' },
   markReadButton: { alignSelf: 'flex-start', marginTop: 4 },
-  markReadText: { color: '#674600', fontSize: 11, fontWeight: '700' },
+  markReadText: { color: colors.blue, fontSize: 11, fontWeight: '700' },
   pageHeading: {
     marginBottom: 10,
   },
@@ -288,47 +273,23 @@ const styles = StyleSheet.create({
   },
   statusPill: {
     alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
     borderRadius: 999,
-    backgroundColor: colors.blueBackground,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
-  dotPositive: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.accent,
-  },
+  statusPill_success: { backgroundColor: colors.greenLight },
+  statusPill_pending: { backgroundColor: colors.warningBackground },
+  statusPill_danger: { backgroundColor: colors.errorBackground },
+  statusPill_neutral: { backgroundColor: colors.blueLight },
   statusPillText: {
-    color: colors.accent,
-    fontSize: 12,
-    fontWeight: '500',
-    textTransform: 'capitalize',
-  },
-  statusIconRow: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    minHeight: 18,
-  },
-  statusGlyph: {
-    alignItems: 'center',
-    borderRadius: 6,
-    borderWidth: 1,
-    height: 14,
-    justifyContent: 'center',
-    width: 14,
-  },
-  statusLabel: {
     fontSize: 12,
     fontWeight: '700',
-    lineHeight: 18,
     textTransform: 'capitalize',
   },
+  statusText_success: { color: colors.success },
+  statusText_pending: { color: colors.warningText },
+  statusText_danger: { color: colors.error },
+  statusText_neutral: { color: colors.muted },
   detailRow: {
     borderBottomColor: colors.divider,
     borderBottomWidth: 1,

@@ -7,7 +7,7 @@ const AUTO_DISMISS_MS = 5000;
 
 function CheckIcon() {
   return (
-    <Svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke={colors.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M20 6L9 17l-5-5" />
     </Svg>
   );
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'rgba(64, 51, 43, 0.35)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     padding: 20,
   },
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 20,
     width: '100%',
-    shadowColor: '#3A2A1E',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   iconCircle: {
     alignItems: 'center',
-    backgroundColor: colors.activeTab,
+    backgroundColor: colors.greenLight,
     borderRadius: 24,
     height: 48,
     justifyContent: 'center',
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   buttonText: {
-    color: colors.darkBlue,
+    color: colors.white,
     fontSize: 14,
     fontWeight: '700',
   },

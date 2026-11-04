@@ -45,7 +45,7 @@ const globalStyles = StyleSheet.create({
     borderWidth: 0,
     borderColor: colors.border,
     padding: 20,
-    shadowColor: '#000000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -71,7 +71,7 @@ const globalStyles = StyleSheet.create({
     borderWidth: 0,
     borderColor: colors.border,
     padding: 16,
-    shadowColor: '#000000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -136,14 +136,14 @@ const globalStyles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 12,
-    shadowColor: '#000000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   primaryButtonTextCompact: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -197,7 +197,7 @@ const globalStyles = StyleSheet.create({
     paddingVertical: 12,
   },
 
-  // Primary button — blue with white text
+  // Primary button — brand green with white text
   primaryButton: {
     backgroundColor: colors.primary,
     height: 48,
@@ -206,7 +206,7 @@ const globalStyles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 16,
-    shadowColor: '#000000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -216,7 +216,7 @@ const globalStyles = StyleSheet.create({
     opacity: 0.5,
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

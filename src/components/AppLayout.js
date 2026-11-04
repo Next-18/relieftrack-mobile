@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, KeyboardAvoidingView, LinearGradient, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import colors from '../styles/colors';
@@ -16,12 +16,7 @@ export default function AppLayout({ children }) {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <LinearGradient
-            colors={['#EDF7F2', '#DCFCE7']}
-            style={styles.headerGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+          <View style={styles.headerGradient}>
             <View style={styles.headerContent}>
               <Image
                 source={require('../../assets/logo.png')}
@@ -31,7 +26,7 @@ export default function AppLayout({ children }) {
               <Text style={styles.appName}>ReliefTrack</Text>
               <Text style={styles.subtitle}>Disaster Relief Inventory Tracker</Text>
             </View>
-          </LinearGradient>
+          </View>
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -55,10 +50,18 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 20,
-    marginBottom: 24,
+    backgroundColor: colors.white,
+    borderColor: colors.border,
     borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 32,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   headerContent: {
     alignItems: 'center',

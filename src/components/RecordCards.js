@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   categoryPill: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.reliefTint,
+    backgroundColor: colors.blueLight,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,

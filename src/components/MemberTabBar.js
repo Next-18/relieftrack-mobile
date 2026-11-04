@@ -13,14 +13,15 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
+import colors from '../styles/colors';
 
-const activeColor = '#2563EB';
-const inactiveIconColor = '#9CA3AF';
-const inactiveTextColor = '#6B7280';
+const activeColor = colors.primary;
+const inactiveIconColor = colors.disabled;
+const inactiveTextColor = colors.muted;
 
 function QrIcon() {
   return (
-    <Svg width={38} height={38} viewBox="0 0 38 38" fill="none" stroke="#FFFFFF" strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={38} height={38} viewBox="0 0 38 38" fill="none" stroke={colors.white} strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M5 13V7a2 2 0 0 1 2-2h6M25 5h6a2 2 0 0 1 2 2v6M33 25v6a2 2 0 0 1-2 2h-6M13 33H7a2 2 0 0 1-2-2v-6" />
       <Rect x="11" y="11" width="6" height="6" rx="1" />
       <Rect x="21" y="11" width="6" height="6" rx="1" />
@@ -124,8 +125,8 @@ export default function MemberTabBar({ state, descriptors }) {
                 <QRCode
                   value={session.beneficiaryNo}
                   size={230}
-                  color="#17191E"
-                  backgroundColor="#FFFFFF"
+                  color={colors.navy}
+                  backgroundColor={colors.white}
                   ecl="H"
                   quietZone={8}
                 />
@@ -146,8 +147,8 @@ export default function MemberTabBar({ state, descriptors }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderTopColor: '#E5E7EB',
+    backgroundColor: colors.white,
+    borderTopColor: colors.border,
     borderTopWidth: 1,
     paddingHorizontal: 8,
     paddingTop: 8,
@@ -181,12 +182,12 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   qrTabButtonHighlighted: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.blueLight,
   },
   qrTabCircle: {
     alignItems: 'center',
-    backgroundColor: activeColor,
-    borderColor: '#FFFFFF',
+    backgroundColor: colors.primary,
+    borderColor: colors.white,
     borderRadius: 36,
     borderWidth: 4,
     height: 72,
@@ -194,17 +195,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -28,
     width: 72,
-    shadowColor: '#000000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
   },
   qrTabCircleHovered: {
-    backgroundColor: '#1D4ED8',
+    backgroundColor: colors.primaryDark,
   },
   qrTabLabel: {
-    color: '#6B7280',
+    color: colors.muted,
     fontSize: 11,
     marginTop: 4,
   },
@@ -217,19 +218,19 @@ const styles = StyleSheet.create({
   },
   qrModal: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.white,
     borderRadius: 16,
     maxWidth: 380,
     padding: 20,
     width: '100%',
   },
   modalTitle: {
-    color: '#1F2937',
+    color: colors.text,
     fontSize: 20,
     fontWeight: '700',
   },
   modalSubtitle: {
-    color: '#6B7280',
+    color: colors.muted,
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 16,
@@ -238,14 +239,14 @@ const styles = StyleSheet.create({
   },
   qrFrame: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: colors.white,
+    borderColor: colors.border,
     borderRadius: 12,
     borderWidth: 1,
     padding: 16,
   },
   beneficiaryNumber: {
-    color: '#1F2937',
+    color: colors.text,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 1,
@@ -253,11 +254,11 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     alignItems: 'center',
-    backgroundColor: activeColor,
+    backgroundColor: colors.primary,
     borderRadius: 10,
     marginTop: 20,
     paddingHorizontal: 32,
     paddingVertical: 12,
   },
-  closeButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
+  closeButtonText: { color: colors.white, fontSize: 15, fontWeight: '600' },
 });
