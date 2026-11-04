@@ -15,8 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 
 const activeColor = '#2563EB';
-const inactiveIconColor = '#94A3B8';
-const inactiveTextColor = '#64748B';
+const inactiveIconColor = '#9CA3AF';
+const inactiveTextColor = '#6B7280';
 
 function QrIcon() {
   return (
@@ -77,7 +77,10 @@ export default function MemberTabBar({ state, descriptors }) {
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       <View style={styles.bar}>
-        {state.routes.map((route, index) => (
+        {state.routes.filter((route) => {
+          const options = descriptors[route.key]?.options;
+          return options?.href !== null;
+        }).map((route, index) => (
           <Fragment key={route.key}>
             {index === 2 ? (
               <Pressable
@@ -146,12 +149,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopColor: '#E5E7EB',
     borderTopWidth: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingTop: 8,
   },
   bar: {
     flexDirection: 'row',
-    height: 56,
+    height: 60,
     justifyContent: 'space-around',
     alignItems: 'flex-end',
   },
@@ -159,46 +162,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 5,
+    paddingVertical: 6,
   },
   tabLabel: {
     color: inactiveTextColor,
-    fontSize: 10,
-    marginTop: 2,
+    fontSize: 11,
+    marginTop: 4,
   },
   tabLabelActive: {
     color: activeColor,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   qrTabButton: {
     alignItems: 'center',
     flex: 1,
-    height: 64,
+    height: 70,
     justifyContent: 'flex-end',
-    paddingBottom: 3,
+    paddingBottom: 4,
   },
   qrTabButtonHighlighted: {
-    backgroundColor: '#EAF2FF',
+    backgroundColor: '#EFF6FF',
   },
   qrTabCircle: {
     alignItems: 'center',
     backgroundColor: activeColor,
     borderColor: '#FFFFFF',
-    borderRadius: 32,
-    borderWidth: 3,
-    height: 64,
+    borderRadius: 36,
+    borderWidth: 4,
+    height: 72,
     justifyContent: 'center',
     position: 'absolute',
-    top: -24,
-    width: 64,
+    top: -28,
+    width: 72,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   qrTabCircleHovered: {
-    backgroundColor: '#2D70D4',
+    backgroundColor: '#1D4ED8',
   },
   qrTabLabel: {
-    color: '#52657F',
+    color: '#6B7280',
     fontSize: 11,
-    marginTop: 1,
+    marginTop: 4,
   },
   modalBackdrop: {
     alignItems: 'center',
@@ -210,46 +218,46 @@ const styles = StyleSheet.create({
   qrModal: {
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     maxWidth: 380,
-    padding: 16,
+    padding: 20,
     width: '100%',
   },
   modalTitle: {
-    color: '#17191E',
-    fontSize: 18,
+    color: '#1F2937',
+    fontSize: 20,
     fontWeight: '700',
   },
   modalSubtitle: {
-    color: '#666B75',
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 14,
+    color: '#6B7280',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
     marginTop: 4,
     textAlign: 'center',
   },
   qrFrame: {
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderColor: '#E7E9ED',
-    borderRadius: 8,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
     borderWidth: 1,
-    padding: 12,
+    padding: 16,
   },
   beneficiaryNumber: {
-    color: '#17191E',
-    fontSize: 15,
+    color: '#1F2937',
+    fontSize: 16,
     fontWeight: '700',
     letterSpacing: 1,
-    marginTop: 12,
+    marginTop: 16,
   },
   closeButton: {
     alignItems: 'center',
     backgroundColor: activeColor,
-    borderRadius: 8,
-    marginTop: 16,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: 20,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
   },
-  closeButtonText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+  closeButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
 });

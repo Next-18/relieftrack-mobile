@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import AwesomeAlert from 'react-native-awesome-alerts';
 import { useAuth } from '../contexts/AuthContext';
 import MemberLayout from '../components/MemberLayout';
 import { DetailRow, PageHeading, StatusPill } from '../components/MemberComponents';
@@ -115,28 +114,33 @@ export default function AccountScreen() {
         Priority type and issuance of QR passes are managed by your Barangay Administrator.
       </Text>
 
-      <AwesomeAlert
-        show={showAlert}
-        showProgress={false}
-        title="Sign out"
-        message="Are you sure you want to sign out?"
-        closeOnTouchOutside={true}
-        closeOnHardwareBackPress={false}
-        showCancelButton={true}
-        showConfirmButton={true}
-        cancelText="Cancel"
-        confirmText="Sign out"
-        confirmButtonColor="#D32F2F"
-        cancelButtonColor="#757575"
-        confirmButtonTextStyle={styles.alertButtonText}
-        cancelButtonTextStyle={styles.alertButtonText}
-        onCancelPressed={() => setShowAlert(false)}
-        onConfirmPressed={confirmSignOut}
-        titleStyle={styles.alertTitle}
-        messageStyle={styles.alertMessage}
-        contentContainerStyle={styles.alertContainer}
-        buttonContainerStyle={styles.alertButtonContainer}
-      />
+      <Modal
+        transparent
+        visible={showAlert}
+        animationType="fade"
+        onRequestClose={() => setShowAlert(false)}
+      >
+        <Pressable style={styles.alertBackdrop} onPress={() => setShowAlert(false)}>
+          <Pressable style={styles.alertContainer} onPress={() => {}}>
+            <Text style={styles.alertTitle}>Sign out</Text>
+            <Text style={styles.alertMessage}>Are you sure you want to sign out?</Text>
+            <View style={styles.alertButtonContainer}>
+              <TouchableOpacity
+                style={[styles.alertButton, styles.alertButtonCancel]}
+                onPress={() => setShowAlert(false)}
+              >
+                <Text style={styles.alertButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alertButton, styles.alertButtonConfirm]}
+                onPress={confirmSignOut}
+              >
+                <Text style={styles.alertButtonText}>Sign out</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </MemberLayout>
   );
 }
@@ -268,25 +272,52 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 10,
   },
+  alertBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
   alertContainer: {
     backgroundColor: colors.white,
     borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 340,
   },
   alertTitle: {
     color: colors.text,
     fontSize: 18,
     fontWeight: '700',
+    marginBottom: 8,
   },
   alertMessage: {
     color: colors.text,
     fontSize: 15,
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  alertButtonContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  alertButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  alertButtonCancel: {
+    backgroundColor: '#757575',
+  },
+  alertButtonConfirm: {
+    backgroundColor: '#D32F2F',
   },
   alertButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  alertButtonContainer: {
-    height: 50,
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

@@ -86,9 +86,8 @@ function AnnouncementCard({ notification, onMarkRead, children }) {
   );
 }
 
-export function AnnouncementSection({ notifications = [], onMarkRead, expanded = false, onToggleExpanded }) {
+export function AnnouncementSection({ notifications = [], onMarkRead }) {
   const first = notifications[0];
-  const hiddenCount = Math.max(notifications.length - 1, 0);
 
   return (
     <View style={styles.announcementSection}>
@@ -99,27 +98,7 @@ export function AnnouncementSection({ notifications = [], onMarkRead, expanded =
           <Text style={styles.announcementEmptyText}>No announcements yet. Relief assignment and pickup updates will appear here.</Text>
         </View>
       ) : (
-        <>
-          <AnnouncementCard notification={first} onMarkRead={onMarkRead}>
-            {hiddenCount > 0 ? (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityState={{ expanded }}
-                onPress={onToggleExpanded}
-                style={styles.showMoreButton}
-              >
-                <Text style={styles.showMoreText}>
-                  {expanded ? 'Show less' : `Show ${hiddenCount} more`} {expanded ? '⌃' : '⌄'}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-          </AnnouncementCard>
-          {expanded
-            ? notifications.slice(1).map((notification) => (
-                <AnnouncementCard key={notification.id} notification={notification} onMarkRead={onMarkRead} />
-              ))
-            : null}
-        </>
+        <AnnouncementCard notification={first} onMarkRead={onMarkRead} />
       )}
     </View>
   );
@@ -249,36 +228,36 @@ const styles = StyleSheet.create({
   announcementEmptyText: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   pendingNotice: {
     alignItems: 'flex-start',
-    backgroundColor: '#FFF8E8',
-    borderColor: '#F1D38B',
-    borderRadius: 8,
+    backgroundColor: colors.warningBackground,
+    borderColor: '#FCD34D',
+    borderRadius: 12,
     borderWidth: 1,
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
     marginBottom: 12,
-    padding: 10,
+    padding: 14,
   },
   pendingNoticeIcon: {
     alignItems: 'center',
-    backgroundColor: '#F6E5B7',
+    backgroundColor: '#FDE68A',
     borderRadius: 8,
-    height: 24,
+    height: 32,
     justifyContent: 'center',
-    width: 24,
+    width: 32,
   },
-  pendingNoticeIconText: { color: '#855500', fontSize: 14, fontWeight: '700' },
-  pendingNoticeCopy: { flex: 1, gap: 3 },
-  pendingNoticeTitle: { color: '#674600', fontSize: 13, fontWeight: '700' },
-  pendingNoticeText: { color: '#7B5B1E', fontSize: 12, lineHeight: 16 },
+  pendingNoticeIconText: { color: '#92400E', fontSize: 18, fontWeight: '700' },
+  pendingNoticeCopy: { flex: 1, gap: 4 },
+  pendingNoticeTitle: { color: '#92400E', fontSize: 14, fontWeight: '600' },
+  pendingNoticeText: { color: '#B45309', fontSize: 12, lineHeight: 16 },
   pickupQrButton: {
     alignSelf: 'flex-start',
     backgroundColor: colors.accent,
-    borderRadius: 6,
-    marginTop: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
-  pickupQrButtonText: { color: colors.white, fontSize: 12, fontWeight: '700' },
+  pickupQrButtonText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
   markReadButton: { alignSelf: 'flex-start', marginTop: 4 },
   markReadText: { color: '#674600', fontSize: 11, fontWeight: '700' },
   pageHeading: {
@@ -312,10 +291,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 999,
-    backgroundColor: colors.reliefTint,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    gap: 5,
+    backgroundColor: colors.blueBackground,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    gap: 6,
   },
   dotPositive: {
     width: 6,
@@ -325,8 +304,8 @@ const styles = StyleSheet.create({
   },
   statusPillText: {
     color: colors.accent,
-    fontSize: 11,
-    fontWeight: '400',
+    fontSize: 12,
+    fontWeight: '500',
     textTransform: 'capitalize',
   },
   statusIconRow: {

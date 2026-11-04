@@ -23,12 +23,7 @@ export function BeneficiaryDataProvider({ children }) {
   const [loading, setLoading] = useState(() => makeResourceState(true));
   const [refreshing, setRefreshing] = useState(() => makeResourceState(false));
   const [errors, setErrors] = useState(() => makeResourceState(''));
-  const [announcementsExpanded, setAnnouncementsExpanded] = useState(false);
   const [releasedItems, setReleasedItems] = useState(null);
-
-  const toggleAnnouncementsExpanded = useCallback(() => {
-    setAnnouncementsExpanded((current) => !current);
-  }, []);
 
   const dismissReleasedAlert = useCallback(() => {
     setReleasedItems(null);
@@ -157,7 +152,7 @@ export function BeneficiaryDataProvider({ children }) {
     };
   }, [data]);
 
-  const value = useMemo(() => ({ data: visibleData, loading, refreshing, errors, refresh, setProfileData, markNotificationRead, announcementsExpanded, setAnnouncementsExpanded, toggleAnnouncementsExpanded, releasedItems, dismissReleasedAlert }), [
+  const value = useMemo(() => ({ data: visibleData, loading, refreshing, errors, refresh, setProfileData, markNotificationRead, releasedItems, dismissReleasedAlert }), [
     visibleData,
     loading,
     refreshing,
@@ -165,8 +160,6 @@ export function BeneficiaryDataProvider({ children }) {
     refresh,
     setProfileData,
     markNotificationRead,
-    announcementsExpanded,
-    toggleAnnouncementsExpanded,
     releasedItems,
     dismissReleasedAlert,
   ]);

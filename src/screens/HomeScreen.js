@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
@@ -15,46 +15,86 @@ import colors from '../styles/colors';
 
 export default function HomeScreen() {
   const { session } = useAuth();
-  const { data, loading, refreshing, errors, refresh, markNotificationRead, announcementsExpanded, toggleAnnouncementsExpanded } = useBeneficiaryData();
+  const { data, loading, refreshing, errors, refresh, markNotificationRead } = useBeneficiaryData();
 
   const name = (session.user.name ?? '').trim().split(/\s+/)[0] || 'there';
   const { profile, distributions, packages, notifications } = data;
   const releasedCount = distributions?.filter((item) => item.status === 'Released').length;
+  const pendingAssignments = distributions?.filter((item) => item.status === 'Assigned') || [];
 
   return (
     <MemberLayout
       onRefresh={() => refresh()}
       refreshing={refreshing.profile || refreshing.distributions || refreshing.packages || refreshing.notifications}
     >
-      {/* Aesthetic Hero Banner */}
-      <View style={styles.hero}>
-        <View style={styles.heroCopy}>
-          <Text style={styles.heroTitle}>Welcome, {name}</Text>
-          <Text style={styles.idPassNumber}>{session.beneficiaryNo}</Text>
+      {/* Welcome Section */}
+      <View style={styles.welcomeSection}>
+        <View>
+          <Text style={styles.welcomeText}>Welcome, {name}</Text>
+          <Text style={styles.beneficiaryId}>{session.beneficiaryNo}</Text>
         </View>
         {profile?.status ? <StatusPill status={profile.status} /> : null}
       </View>
 
+      {/* Yellow Info Card */}
+      {pendingAssignments.length > 0 && (
+        <View style={styles.infoCard}>
+          <View style={styles.infoCardHeader}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoIconText}>!</Text>
+            </View>
+            <View style={styles.infoCardContent}>
+              <Text style={styles.infoCardTitle}>A relief package is assigned to you</Text>
+              <Text style={styles.infoCardText}>
+                {pendingAssignments[0].relief_package?.package_name || 'Relief package'} · Pending pickup
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.qrButton}>
+            <Text style={styles.qrButtonText}>Show pickup QR code</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {errors.profile ? <ErrorState message={errors.profile} onRetry={() => refresh('profile')} /> : null}
       {loading.profile && !profile ? <LoadingState message="Loading your relief updates…" /> : null}
-      <AnnouncementSection
-        notifications={notifications || []}
-        onMarkRead={markNotificationRead}
-        expanded={announcementsExpanded}
-        onToggleExpanded={toggleAnnouncementsExpanded}
-      />
+      <View style={styles.announcementWrapper}>
+        <AnnouncementSection
+          notifications={notifications || []}
+          onMarkRead={markNotificationRead}
+        />
+      </View>
 
-      {/* Metric Stat Cards */}
+      {/* Stat Cards */}
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{releasedCount ?? '0'}</Text>
-          <Text style={styles.statLabel}>Packages received</Text>
+          <View style={styles.iconWrapper}>
+            <Image
+              source={require('../../assets/package-received-icon.png')}
+              style={styles.statIcon}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.statContent}>
+            <Text style={styles.statValue}>{releasedCount ?? '0'}</Text>
+            <Text style={styles.statLabel}>Packages received</Text>
+          </View>
         </View>
 
         <Link href="/packages" asChild>
           <Pressable style={styles.statCard}>
-            <Text style={styles.statValue}>{packages?.length ?? '0'}</Text>
-            <Text style={styles.statLabel}>Packages listed</Text>
+            <View style={styles.iconWrapper}>
+              <Image
+                source={require('../../assets/package-listed-icon.png')}
+                style={styles.statIcon}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.statContent}>
+              <Text style={styles.statValue}>{packages?.length ?? '0'}</Text>
+              <Text style={styles.statLabel}>Packages listed</Text>
+              <Text style={styles.statSublabel}>Available now</Text>
+            </View>
           </Pressable>
         </Link>
       </View>
@@ -90,72 +130,130 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderColor: 'transparent',
-    borderWidth: 0,
-    borderRadius: 8,
+  welcomeSection: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
+    marginBottom: 16,
+  },
+  announcementWrapper: {
+    marginBottom: 16,
+  },
+  welcomeText: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  beneficiaryId: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: '400',
+  },
+  infoCard: {
+    backgroundColor: colors.warningBackground,
+    borderColor: '#FCD34D',
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 16,
+    padding: 14,
+  },
+  infoCardHeader: {
+    flexDirection: 'row',
+    gap: 12,
     marginBottom: 12,
-    shadowColor: '#3A2A1E',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
   },
-  heroCopy: {
-    flex: 1,
-    gap: 3,
+  infoIcon: {
+    alignItems: 'center',
+    backgroundColor: '#FDE68A',
+    borderRadius: 8,
+    height: 32,
+    justifyContent: 'center',
+    width: 32,
   },
-  heroTitle: {
-    color: colors.darkBlue,
+  infoIconText: {
+    color: '#92400E',
     fontSize: 18,
     fontWeight: '700',
   },
-  idPassNumber: {
-    color: colors.text,
+  infoCardContent: {
+    flex: 1,
+  },
+  infoCardTitle: {
+    color: '#92400E',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  infoCardText: {
+    color: '#B45309',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  qrButton: {
+    backgroundColor: colors.accent,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    alignSelf: 'flex-start',
+  },
+  qrButtonText: {
+    color: '#FFFFFF',
     fontSize: 13,
-    fontWeight: '400',
-    letterSpacing: 0.4,
+    fontWeight: '600',
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 4,
+    gap: 12,
+    marginBottom: 16,
   },
   statCard: {
     alignItems: 'center',
     backgroundColor: colors.white,
-    borderColor: 'transparent',
-    borderRadius: 8,
-    borderWidth: 0,
+    borderColor: colors.border,
+    borderRadius: 12,
+    borderWidth: 1,
     flex: 1,
     flexDirection: 'row',
-    gap: 6,
-    padding: 12,
-    shadowColor: '#3A2A1E',
+    gap: 12,
+    padding: 14,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    elevation: 1,
+    elevation: 2,
+  },
+  iconWrapper: {
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIcon: {
+    width: 56,
+    height: 56,
+  },
+  statContent: {
+    flex: 1,
   },
   statValue: {
     color: colors.text,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
   },
   statLabel: {
     color: colors.muted,
     fontSize: 12,
     fontWeight: '400',
-    flex: 1,
+  },
+  statSublabel: {
+    color: colors.accent,
+    fontSize: 11,
+    fontWeight: '500',
   },
   sectionLinkText: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: '400',
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '500',
   },
 });

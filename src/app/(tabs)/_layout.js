@@ -1,10 +1,9 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
-import { BeneficiaryDataProvider } from '../../contexts/BeneficiaryDataContext';
 import MemberTabBar from '../../components/MemberTabBar';
 
-function HomeIcon({ color, size = 18 }) {
+function HomeIcon({ color, size = 20 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z" />
@@ -13,7 +12,7 @@ function HomeIcon({ color, size = 18 }) {
   );
 }
 
-function DistributionsIcon({ color, size = 18 }) {
+function DistributionsIcon({ color, size = 20 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <Rect x="3" y="4" width="18" height="16" rx="3" />
@@ -25,7 +24,7 @@ function DistributionsIcon({ color, size = 18 }) {
   );
 }
 
-function PackagesIcon({ color, size = 18 }) {
+function PackagesIcon({ color, size = 20 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -35,7 +34,7 @@ function PackagesIcon({ color, size = 18 }) {
   );
 }
 
-function AccountIcon({ color, size = 18 }) {
+function AccountIcon({ color, size = 20 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -46,48 +45,46 @@ function AccountIcon({ color, size = 18 }) {
 
 export default function MemberTabs() {
   return (
-    <BeneficiaryDataProvider>
-      <Tabs
-        tabBar={(props) => <MemberTabBar {...props} />}
-        screenOptions={{
-          headerShown: false,
-          freezeOnBlur: true,
-          tabBarHideOnKeyboard: true,
+    <Tabs
+      tabBar={(props) => <MemberTabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+        freezeOnBlur: true,
+        tabBarHideOnKeyboard: true,
+      }}
+    >
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: 'Home',
+          tabBarAccessibilityLabel: 'Home',
+          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
         }}
-      >
-        <Tabs.Screen
-          name="home"
-          options={{
-            title: 'Home',
-            tabBarAccessibilityLabel: 'Home',
-            tabBarIcon: ({ color }) => <HomeIcon color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="distributions"
-          options={{
-            title: 'My Relief',
-            tabBarAccessibilityLabel: 'My relief history',
-            tabBarIcon: ({ color }) => <DistributionsIcon color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="packages"
-          options={{
-            title: 'Packages',
-            tabBarAccessibilityLabel: 'Available relief packages',
-            tabBarIcon: ({ color }) => <PackagesIcon color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="account"
-          options={{
-            title: 'Account',
-            tabBarAccessibilityLabel: 'My beneficiary account',
-            tabBarIcon: ({ color }) => <AccountIcon color={color} />,
-          }}
-        />
-      </Tabs>
-    </BeneficiaryDataProvider>
+      />
+      <Tabs.Screen
+        name="distributions"
+        options={{
+          title: 'My Relief',
+          tabBarAccessibilityLabel: 'My relief history',
+          tabBarIcon: ({ color }) => <DistributionsIcon color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="packages"
+        options={{
+          title: 'Packages',
+          tabBarAccessibilityLabel: 'Available relief packages',
+          tabBarIcon: ({ color }) => <PackagesIcon color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: 'Account',
+          tabBarAccessibilityLabel: 'My beneficiary account',
+          tabBarIcon: ({ color }) => <AccountIcon color={color} />,
+        }}
+      />
+    </Tabs>
   );
 }
