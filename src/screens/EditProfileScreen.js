@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
 import { useAuth } from '../contexts/AuthContext';
 import SubScreenHeader from '../components/SubScreenHeader';
 import FormField from '../components/FormField';
@@ -19,7 +20,7 @@ export default function EditProfileScreen() {
   const [address, setAddress] = useState('');
   const [householdSize, setHouseholdSize] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -79,8 +80,7 @@ export default function EditProfileScreen() {
         updateSessionUser({ name: updated.full_name });
       }
 
-      setSuccess('Your account details have been updated.');
-      setTimeout(() => router.back(), 1200);
+      setShowSuccessAlert(true);
     } catch (err) {
       setError(err.message || 'Could not update your account. Please try again.');
       setIsSaving(false);
@@ -88,6 +88,10 @@ export default function EditProfileScreen() {
   };
 
   const clearError = () => setError('');
+  const handleSuccessDone = () => {
+    setShowSuccessAlert(false);
+    router.back();
+  };
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -163,21 +167,41 @@ export default function EditProfileScreen() {
                 {error}
               </Text>
             ) : null}
-            {success ? (
-              <View style={styles.successNotice}>
-                <Text style={styles.successText}>{success}</Text>
-              </View>
-            ) : null}
-
             <PrimaryButton
               compact
               title={isSaving ? 'Saving…' : 'Save changes'}
               onPress={handleSave}
-              disabled={isSaving || !!success}
+              disabled={isSaving}
             />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal
+        transparent
+        visible={showSuccessAlert}
+        animationType="fade"
+        onRequestClose={handleSuccessDone}
+      >
+        <View style={styles.alertOverlay}>
+          <View style={styles.alertCard}>
+            <View accessible={false} style={styles.alertIconCircle}>
+              <Svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M20 6L9 17l-5-5" />
+              </Svg>
+            </View>
+            <Text accessibilityRole="alert" style={styles.alertTitle}>Profile saved</Text>
+            <Text style={styles.alertMessage}>Your account details have been updated.</Text>
+            <Pressable
+              style={styles.alertButton}
+              onPress={handleSuccessDone}
+              accessibilityRole="button"
+            >
+              <Text style={styles.alertButtonText}>Done</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -198,16 +222,61 @@ const styles = StyleSheet.create({
     maxWidth: 580,
     alignSelf: 'center',
   },
-  successNotice: {
-    backgroundColor: colors.successBackground,
-    borderRadius: 12,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+  alertOverlay: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: colors.overlay,
+    justifyContent: 'center',
+    padding: 20,
   },
-  successText: {
-    color: colors.accent,
+  alertCard: {
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    maxWidth: 340,
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    width: '100%',
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  alertIconCircle: {
+    alignItems: 'center',
+    backgroundColor: colors.successBackground,
+    borderRadius: 28,
+    height: 56,
+    justifyContent: 'center',
+    marginBottom: 14,
+    width: 56,
+  },
+  alertTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  alertMessage: {
+    color: colors.muted,
     fontSize: 14,
-    fontWeight: '400',
+    lineHeight: 20,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  alertButton: {
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    height: 44,
+    justifyContent: 'center',
+    width: '100%',
+  },
+  alertButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: '600',
   },
 });
