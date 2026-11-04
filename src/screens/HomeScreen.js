@@ -18,7 +18,7 @@ export default function HomeScreen() {
   const { session } = useAuth();
   const { data, loading, refreshing, errors, refresh, markNotificationRead } = useBeneficiaryData();
 
-  const barangayName = session.user.name || 'Barangay';
+  const barangayName = session?.user?.name || 'Barangay';
   const { profile, distributions, packages, notifications } = data;
   const releasedCount = distributions?.filter((item) => item.status === 'Released').length;
   const pendingAssignments = distributions?.filter((item) => item.status === 'Assigned') || [];

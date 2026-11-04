@@ -33,6 +33,8 @@ export default function AccountScreen() {
   const [showAlert, setShowAlert] = useState(false);
   const { data, loading, errors, refresh } = useBeneficiaryData();
   const profile = data.profile;
+  const accountName = session?.user?.name || 'Beneficiary';
+  const beneficiaryNo = session?.beneficiaryNo || '';
   const isLoading = loading.profile;
   const error = errors.profile;
 
@@ -62,12 +64,12 @@ export default function AccountScreen() {
             <View style={styles.nameRow}>
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>
-                  {(profile.full_name || session.user.name || 'B').trim()[0].toUpperCase()}
+                  {(profile.full_name || accountName || 'B').trim()[0].toUpperCase()}
                 </Text>
               </View>
               <View style={styles.nameCopy}>
-                <Text style={styles.name}>{profile.full_name || session.user.name}</Text>
-                <Text selectable style={styles.number}>{profile.beneficiary_no || session.beneficiaryNo}</Text>
+                <Text style={styles.name}>{profile.full_name || accountName}</Text>
+                <Text selectable style={styles.number}>{profile.beneficiary_no || beneficiaryNo}</Text>
               </View>
               <StatusPill status={profile.status} />
             </View>

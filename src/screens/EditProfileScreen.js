@@ -25,6 +25,12 @@ export default function EditProfileScreen() {
   useEffect(() => {
     let isMounted = true;
 
+    if (!session?.token || !session?.beneficiaryId) {
+      return () => {
+        isMounted = false;
+      };
+    }
+
     getBeneficiaryProfile(session.token, session.beneficiaryId)
       .then((profile) => {
         if (!isMounted || !profile) {
@@ -43,6 +49,11 @@ export default function EditProfileScreen() {
   }, [session]);
 
   const handleSave = async () => {
+    if (!session?.token || !session?.beneficiaryId) {
+      setError('Please sign in again to edit your profile.');
+      return;
+    }
+
     if (!fullName.trim()) {
       setError('Please enter your full name.');
       return;

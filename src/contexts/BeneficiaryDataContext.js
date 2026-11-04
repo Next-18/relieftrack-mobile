@@ -17,8 +17,11 @@ function makeResourceState(initialValue) {
 
 export function BeneficiaryDataProvider({ children }) {
   const { session } = useAuth();
+  const token = session?.token;
+  const beneficiaryId = session?.beneficiaryId;
   const [data, setData] = useState(() => makeResourceState(null));
   const dataRef = useRef(data);
+  const activeSessionKey = useRef(null);
   const requestIds = useRef(makeResourceState(0));
   const [loading, setLoading] = useState(() => makeResourceState(true));
   const [refreshing, setRefreshing] = useState(() => makeResourceState(false));
@@ -30,6 +33,8 @@ export function BeneficiaryDataProvider({ children }) {
   }, []);
 
   const loadResources = useCallback(async (resourceKeys, showRefreshing = false) => {
+    if (!token || !beneficiaryId) return;
+
     const requests = resourceKeys.map((key) => {
       requestIds.current[key] += 1;
       return { key, requestId: requestIds.current[key] };
@@ -51,10 +56,10 @@ export function BeneficiaryDataProvider({ children }) {
     }
 
     const loaders = {
-      profile: () => getBeneficiaryProfile(session.token, session.beneficiaryId),
-      distributions: () => getBeneficiaryDistributions(session.token, session.beneficiaryId),
-      packages: () => getAvailablePackages(session.token),
-      notifications: () => getBeneficiaryNotifications(session.token),
+      profile: () => getBeneficiaryProfile(token, beneficiaryId),
+      distributions: () => getBeneficiaryDistributions(token, beneficiaryId),
+      packages: () => getAvailablePackages(token),
+      notifications: () => getBeneficiaryNotifications(token),
     };
 
     await Promise.all(requests.map(async ({ key, requestId }) => {
@@ -91,9 +96,33 @@ export function BeneficiaryDataProvider({ children }) {
         }
       }
     }));
-  }, [session.token, session.beneficiaryId]);
+  }, [token, beneficiaryId]);
 
   useEffect(() => {
+    if (!token || !beneficiaryId) {
+      activeSessionKey.current = null;
+      const emptyData = makeResourceState(null);
+      dataRef.current = emptyData;
+      setData(emptyData);
+      setLoading(makeResourceState(false));
+      setRefreshing(makeResourceState(false));
+      setErrors(makeResourceState(''));
+      setReleasedItems(null);
+      return undefined;
+    }
+
+    const sessionKey = `${beneficiaryId}:${token}`;
+    if (activeSessionKey.current !== sessionKey) {
+      activeSessionKey.current = sessionKey;
+      const emptyData = makeResourceState(null);
+      dataRef.current = emptyData;
+      setData(emptyData);
+      setLoading(makeResourceState(true));
+      setRefreshing(makeResourceState(false));
+      setErrors(makeResourceState(''));
+      setReleasedItems(null);
+    }
+
     loadResources(RESOURCE_KEYS);
     const pendingAssignmentPoll = setInterval(() => loadResources(['distributions', 'packages', 'notifications'], true), 30000);
     const ids = requestIds.current;
@@ -103,7 +132,7 @@ export function BeneficiaryDataProvider({ children }) {
         ids[key] += 1;
       });
     };
-  }, [loadResources]);
+  }, [loadResources, token, beneficiaryId]);
 
   const refresh = useCallback((resourceKey) => {
     const requestedKeys = RESOURCE_KEYS.includes(resourceKey) ? [resourceKey] : RESOURCE_KEYS;
@@ -119,7 +148,9 @@ export function BeneficiaryDataProvider({ children }) {
   }, []);
 
   const markNotificationRead = useCallback(async (notificationId) => {
-    await markBeneficiaryNotificationRead(session.token, notificationId);
+    if (!token) return;
+
+    await markBeneficiaryNotificationRead(token, notificationId);
     const readAt = new Date().toISOString();
     setData((current) => {
       const next = {
@@ -131,7 +162,7 @@ export function BeneficiaryDataProvider({ children }) {
       dataRef.current = next;
       return next;
     });
-  }, [session.token]);
+  }, [token]);
 
   const visibleData = useMemo(() => {
     // Do not briefly expose the unfiltered inventory while personal history is

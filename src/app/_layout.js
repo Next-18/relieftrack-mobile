@@ -4,18 +4,6 @@ import LoadingScreen from '../screens/LoadingScreen';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { BeneficiaryDataProvider } from '../contexts/BeneficiaryDataContext';
 
-function AuthenticatedNavigator() {
-  return (
-    <BeneficiaryDataProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="update-password" options={{ animation: 'none' }} />
-        <Stack.Screen name="edit-profile" options={{ animation: 'none' }} />
-      </Stack>
-    </BeneficiaryDataProvider>
-  );
-}
-
 function RootNavigator() {
   const { session, isRestoringSession } = useAuth();
 
@@ -23,20 +11,23 @@ function RootNavigator() {
     return <LoadingScreen />;
   }
 
-  if (Boolean(session) && session?.passwordChanged) {
-    return <AuthenticatedNavigator />;
-  }
-
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Protected guard={!session}>
-        <Stack.Screen name="login" />
-      </Stack.Protected>
-      <Stack.Protected guard={Boolean(session) && !session?.passwordChanged}>
-        <Stack.Screen name="change-password" />
-      </Stack.Protected>
-    </Stack>
+    <BeneficiaryDataProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Protected guard={!session}>
+          <Stack.Screen name="login" />
+        </Stack.Protected>
+        <Stack.Protected guard={Boolean(session) && !session.passwordChanged}>
+          <Stack.Screen name="change-password" />
+        </Stack.Protected>
+        <Stack.Protected guard={Boolean(session) && Boolean(session.passwordChanged)}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="update-password" options={{ animation: 'none' }} />
+          <Stack.Screen name="edit-profile" options={{ animation: 'none' }} />
+        </Stack.Protected>
+      </Stack>
+    </BeneficiaryDataProvider>
   );
 }
 
