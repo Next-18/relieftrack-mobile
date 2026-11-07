@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import { useAuth } from '../contexts/AuthContext';
+import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
 import SubScreenHeader from '../components/SubScreenHeader';
 import FormField from '../components/FormField';
 import PrimaryButton from '../components/PrimaryButton';
@@ -15,10 +16,15 @@ import globalStyles from '../styles/globalStyles';
 export default function EditProfileScreen() {
   const router = useRouter();
   const { session, updateSessionUser } = useAuth();
-  const [fullName, setFullName] = useState(session?.user?.name || '');
-  const [contactNumber, setContactNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [householdSize, setHouseholdSize] = useState('');
+  const { data, setProfileData, refresh } = useBeneficiaryData();
+  const currentProfile = data?.profile;
+
+  const [fullName, setFullName] = useState(currentProfile?.full_name || session?.user?.name || '');
+  const [contactNumber, setContactNumber] = useState(currentProfile?.contact_number || '');
+  const [address, setAddress] = useState(currentProfile?.address || '');
+  const [householdSize, setHouseholdSize] = useState(
+    currentProfile?.household_size ? String(currentProfile.household_size) : ''
+  );
   const [error, setError] = useState('');
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -68,17 +74,34 @@ export default function EditProfileScreen() {
     setIsSaving(true);
     setError('');
 
-    try {
-      const updated = await updateBeneficiaryProfile(session.token, session.beneficiaryId, {
-        full_name: fullName.trim(),
-        contact_number: contactNumber.trim() || null,
-        address: address.trim() || null,
-        household_size: householdSize.trim() ? parseInt(householdSize.trim(), 10) : null,
-      });
+    const payload = {
+      full_name: fullName.trim(),
+      contact_number: contactNumber.trim() || null,
+      address: address.trim() || null,
+      household_size: householdSize.trim() ? parseInt(householdSize.trim(), 10) : null,
+    };
 
-      if (updated?.full_name) {
-        updateSessionUser({ name: updated.full_name });
+    try {
+      const updated = await updateBeneficiaryProfile(session.token, session.beneficiaryId, payload);
+
+      const nextProfile = {
+        ...(data?.profile || {}),
+        ...payload,
+        ...(updated && typeof updated === 'object' ? updated : {}),
+      };
+
+      // Immediately update local cache so changes appear without needing to refresh
+      setProfileData(nextProfile);
+
+      if (nextProfile.full_name) {
+        updateSessionUser({
+          name: nextProfile.full_name,
+          full_name: nextProfile.full_name,
+        });
       }
+
+      // Revalidate in background to keep in sync with database
+      refresh('profile').catch(() => {});
 
       setShowSuccessAlert(true);
     } catch (err) {
