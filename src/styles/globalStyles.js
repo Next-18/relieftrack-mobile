@@ -114,24 +114,24 @@ const globalStyles = StyleSheet.create({
   passwordInputWrapperCompact: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 44,
+    height: 52,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    backgroundColor: colors.white,
+    borderColor: '#EAF5FF',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
   },
   passwordInputCompact: {
     flex: 1,
     paddingHorizontal: 12,
     fontSize: 14,
-    color: colors.text,
+    color: '#173B63',
   },
   showPasswordButtonCompact: {
-    minWidth: 44,
+    minWidth: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   primaryButtonCompact: {
     backgroundColor: colors.primary,
@@ -155,7 +155,7 @@ const globalStyles = StyleSheet.create({
 
   // Inputs — matches design
   inputContainer: {
-    marginBottom: 14,
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
@@ -182,24 +182,24 @@ const globalStyles = StyleSheet.create({
   passwordInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 48,
+    height: 52,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    backgroundColor: colors.white,
+    borderColor: '#EAF5FF',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
   },
   passwordInput: {
     flex: 1,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: colors.text,
+    color: '#173B63',
   },
   showPasswordButton: {
-    minWidth: 48,
+    minWidth: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
   },
 
   // Primary button — brand green with white text
