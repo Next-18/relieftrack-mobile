@@ -12,16 +12,46 @@ export function PageHeading({ title, subtitle }) {
   );
 }
 
-export function SectionHeading({ title, trailing }) {
+export function MegaphoneIcon({ size = 20, color = colors.blue }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M3 11l15-7v14L3 11z" />
+      <Path d="M12 15.5V20a2 2 0 0 1-2 2H9" />
+      <Path d="M18 8c1.5 1 2.5 2.5 2.5 4s-1 3-2.5 4" />
+    </Svg>
+  );
+}
+
+export function HistoryIcon({ size = 20, color = colors.blue }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+      <Path d="M3 3v5h5" />
+      <Path d="M12 7v5l3 2" />
+    </Svg>
+  );
+}
+
+export function SectionHeading({ title, icon, trailing }) {
+  let IconComponent = null;
+  if (icon === 'history') {
+    IconComponent = HistoryIcon;
+  } else if (icon === 'megaphone') {
+    IconComponent = MegaphoneIcon;
+  }
+
   return (
     <View style={styles.sectionHeading}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.sectionHeaderLeft}>
+        {IconComponent ? <IconComponent size={20} color="#1868A0" /> : null}
+        <Text style={styles.sectionTitle}>{title}</Text>
+      </View>
       {trailing}
     </View>
   );
 }
 
-export function PendingAssignmentNotice({ assignments = [], onShowQr }) {
+export function PendingAssignmentNotice({ assignments = [] }) {
   if (!assignments.length) return null;
   const packageNames = [...new Set(assignments.map((item) => item.relief_package?.package_name || item.package_name || 'Relief package'))];
 
@@ -31,15 +61,6 @@ export function PendingAssignmentNotice({ assignments = [], onShowQr }) {
       <View style={styles.pendingNoticeCopy}>
         <Text style={styles.pendingNoticeTitle}>{assignments.length === 1 ? 'A relief package is assigned to you' : `${assignments.length} relief packages are assigned to you`}</Text>
         <Text style={styles.pendingNoticeText}>{packageNames.join(', ')} · Pending pickup. Show your QR code to relief staff when collecting it.</Text>
-        {onShowQr ? (
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={onShowQr}
-            style={styles.pickupQrButton}
-          >
-            <Text style={styles.pickupQrButtonText}>Show pickup QR code</Text>
-          </TouchableOpacity>
-        ) : null}
       </View>
     </View>
   );
@@ -98,28 +119,37 @@ export function NotificationBell({ unreadCount = 0 }) {
 function AnnouncementCard({ notification, onMarkRead, children }) {
   return (
     <View style={styles.announcementCard}>
-      <Text style={styles.announcementTitle}>{notification.title}</Text>
-      <Text style={styles.announcementText}>{notification.message}</Text>
-      {!notification.read_at ? (
-        <TouchableOpacity
-          accessibilityRole="button"
-          onPress={() => onMarkRead?.(notification.id)}
-          style={styles.markReadButton}
-        >
-          <Text style={styles.markReadText}>Mark as read</Text>
-        </TouchableOpacity>
-      ) : null}
-      {children}
+      <View style={styles.announcementIconBadge}>
+        <View style={styles.announcementDot} />
+      </View>
+      <View style={styles.announcementBody}>
+        <Text style={styles.announcementTitle}>{notification.title}</Text>
+        <Text style={styles.announcementText}>{notification.message}</Text>
+        {!notification.read_at ? (
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => onMarkRead?.(notification.id)}
+            style={styles.markReadButton}
+          >
+            <Text style={styles.markReadText}>Mark as read</Text>
+          </TouchableOpacity>
+        ) : null}
+        {children}
+      </View>
     </View>
   );
 }
 
-export function AnnouncementSection({ notifications = [], onMarkRead }) {
+export function AnnouncementSection({ notifications = [], onMarkRead, trailing }) {
   const first = notifications[0];
 
   return (
     <View style={styles.announcementSection}>
-      <Text style={styles.announcementHeading}>Announcements</Text>
+      <SectionHeading
+        title="Announcements"
+        icon="megaphone"
+        trailing={trailing}
+      />
 
       {!first ? (
         <View style={styles.announcementEmpty}>
@@ -247,27 +277,61 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   announcementCard: {
-    backgroundColor: colors.blueLight,
-    borderColor: colors.border,
-    borderRadius: 12,
+    backgroundColor: '#EDF5FE',
+    borderColor: '#D0E1FD',
+    borderRadius: 16,
     borderWidth: 1,
+    flexDirection: 'row',
+    gap: 12,
     marginBottom: 8,
-    padding: 10,
+    padding: 14,
+    shadowColor: '#1868A0',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  announcementTitle: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  announcementText: { color: colors.muted, fontSize: 12, lineHeight: 16, marginTop: 3 },
+  announcementIconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#D6E6FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  announcementDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#1868A0',
+  },
+  announcementBody: {
+    flex: 1,
+  },
+  announcementTitle: {
+    color: '#0F172A',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  announcementText: {
+    color: '#334155',
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 4,
+  },
   announcementEmpty: {
     backgroundColor: colors.white,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    padding: 10,
+    padding: 14,
   },
-  announcementEmptyText: { color: colors.muted, fontSize: 12, lineHeight: 16 },
+  announcementEmptyText: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   pendingNotice: {
     alignItems: 'flex-start',
-    backgroundColor: colors.warningBackground,
-    borderColor: colors.warningBorder,
+    backgroundColor: colors.blueLight,
+    borderColor: colors.border,
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: 'row',
@@ -277,25 +341,16 @@ const styles = StyleSheet.create({
   },
   pendingNoticeIcon: {
     alignItems: 'center',
-    backgroundColor: colors.warningBorder,
+    backgroundColor: '#BFDBFE',
     borderRadius: 8,
     height: 32,
     justifyContent: 'center',
     width: 32,
   },
-  pendingNoticeIconText: { color: colors.warningText, fontSize: 18, fontWeight: '700' },
+  pendingNoticeIconText: { color: colors.blue, fontSize: 18, fontWeight: '700' },
   pendingNoticeCopy: { flex: 1, gap: 4 },
-  pendingNoticeTitle: { color: colors.warningText, fontSize: 14, fontWeight: '600' },
-  pendingNoticeText: { color: colors.warningText, fontSize: 12, lineHeight: 16 },
-  pickupQrButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    marginTop: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  pickupQrButtonText: { color: colors.white, fontSize: 13, fontWeight: '600' },
+  pendingNoticeTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
+  pendingNoticeText: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   markReadButton: { alignSelf: 'flex-start', marginTop: 4 },
   markReadText: { color: colors.blue, fontSize: 11, fontWeight: '700' },
   pageHeading: {
@@ -316,13 +371,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 14,
+    marginBottom: 10,
+  },
+  sectionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   sectionTitle: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: '500',
+    color: '#0F172A',
+    fontSize: 17,
+    fontWeight: '700',
+    letterSpacing: -0.2,
   },
   statusMark: {
     alignItems: 'center',

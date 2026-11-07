@@ -27,9 +27,48 @@ export function BeneficiaryDataProvider({ children }) {
   const [refreshing, setRefreshing] = useState(() => makeResourceState(false));
   const [errors, setErrors] = useState(() => makeResourceState(''));
   const [releasedItems, setReleasedItems] = useState(null);
+  const [alreadyReceivedAlert, setAlreadyReceivedAlert] = useState(null);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   const dismissReleasedAlert = useCallback(() => {
     setReleasedItems(null);
+  }, []);
+
+  const dismissAlreadyReceivedAlert = useCallback(() => {
+    setAlreadyReceivedAlert(null);
+  }, []);
+
+  const simulateAlreadyReceivedScan = useCallback((packageName) => {
+    let name = packageName;
+    if (!name && Array.isArray(dataRef.current.distributions)) {
+      const released = dataRef.current.distributions.find(
+        (item) => String(item.status).toLowerCase() === 'released'
+      );
+      if (released) {
+        name = released.relief_package?.package_name || released.package_name;
+      }
+    }
+    const finalName = name || 'Relief Family Food Pack';
+
+    setAlreadyReceivedAlert({
+      id: Date.now(),
+      packageName: finalName,
+      title: 'Already received!',
+      message: `${finalName} has already been claimed and released. Each beneficiary is only eligible to receive once.`,
+    });
+    setShowQrModal(false);
+  }, []);
+
+  const simulateQrScan = useCallback((packageName = 'Family Food Pack') => {
+    setReleasedItems([
+      {
+        id: Date.now(),
+        status: 'Released',
+        package_name: packageName,
+        relief_package: { package_name: packageName },
+      },
+    ]);
+    setShowQrModal(false);
   }, []);
 
   const loadResources = useCallback(async (resourceKeys, showRefreshing = false) => {
@@ -74,7 +113,9 @@ export function BeneficiaryDataProvider({ children }) {
           );
           const newlyReleased = nextValue.filter((item) => isReleased(item) && !releasedIds.has(String(item.id)));
           if (newlyReleased.length > 0) {
+            // Immediate transition: close QR modal and display sweet alert
             setReleasedItems(newlyReleased);
+            setShowQrModal(false);
           }
         }
 
@@ -98,6 +139,7 @@ export function BeneficiaryDataProvider({ children }) {
     }));
   }, [token, beneficiaryId]);
 
+  // Initial data load when session changes
   useEffect(() => {
     if (!token || !beneficiaryId) {
       activeSessionKey.current = null;
@@ -108,6 +150,8 @@ export function BeneficiaryDataProvider({ children }) {
       setRefreshing(makeResourceState(false));
       setErrors(makeResourceState(''));
       setReleasedItems(null);
+      setAlreadyReceivedAlert(null);
+      setShowQrModal(false);
       return undefined;
     }
 
@@ -121,18 +165,37 @@ export function BeneficiaryDataProvider({ children }) {
       setRefreshing(makeResourceState(false));
       setErrors(makeResourceState(''));
       setReleasedItems(null);
+      setAlreadyReceivedAlert(null);
+      setShowQrModal(false);
     }
 
     loadResources(RESOURCE_KEYS);
-    const pendingAssignmentPoll = setInterval(() => loadResources(['distributions', 'packages', 'notifications'], true), 30000);
-    const ids = requestIds.current;
-    return () => {
-      clearInterval(pendingAssignmentPoll);
-      RESOURCE_KEYS.forEach((key) => {
-        ids[key] += 1;
-      });
-    };
   }, [loadResources, token, beneficiaryId]);
+
+  // Fast adaptive polling for instant QR release detection
+  const hasPending = useMemo(() => {
+    return (
+      Array.isArray(data.distributions) &&
+      data.distributions.some((item) =>
+        ['pending', 'assigned'].includes(String(item.status).toLowerCase())
+      )
+    );
+  }, [data.distributions]);
+
+  useEffect(() => {
+    if (!token || !beneficiaryId) return undefined;
+
+    // When showing QR code at distribution counter: poll every 1.5s for immediate alert
+    // When pending assignment exists: poll every 3.5s
+    // When idle: poll every 30s
+    const pollInterval = showQrModal ? 1500 : hasPending ? 3500 : 30000;
+
+    const intervalId = setInterval(() => {
+      loadResources(['distributions', 'packages', 'notifications'], false);
+    }, pollInterval);
+
+    return () => clearInterval(intervalId);
+  }, [token, beneficiaryId, showQrModal, hasPending, loadResources]);
 
   const refresh = useCallback((resourceKey) => {
     const requestedKeys = RESOURCE_KEYS.includes(resourceKey) ? [resourceKey] : RESOURCE_KEYS;
@@ -165,15 +228,13 @@ export function BeneficiaryDataProvider({ children }) {
   }, [token]);
 
   const visibleData = useMemo(() => {
-    // Do not briefly expose the unfiltered inventory while personal history is
-    // still loading. Screens can show a loader or the distribution error.
     if (!data.packages || !data.distributions) {
       return { ...data, packages: null };
     }
 
     const assignedPackageIds = new Set(
       data.distributions
-        .filter((distribution) => ['pending', 'released'].includes(String(distribution.status).toLowerCase()))
+        .filter((distribution) => ['pending', 'assigned', 'released'].includes(String(distribution.status).toLowerCase()))
         .map((distribution) => String(distribution.package_id))
     );
 
@@ -183,7 +244,23 @@ export function BeneficiaryDataProvider({ children }) {
     };
   }, [data]);
 
-  const value = useMemo(() => ({ data: visibleData, loading, refreshing, errors, refresh, setProfileData, markNotificationRead, releasedItems, dismissReleasedAlert }), [
+  const value = useMemo(() => ({
+    data: visibleData,
+    loading,
+    refreshing,
+    errors,
+    refresh,
+    setProfileData,
+    markNotificationRead,
+    releasedItems,
+    dismissReleasedAlert,
+    alreadyReceivedAlert,
+    dismissAlreadyReceivedAlert,
+    showQrModal,
+    setShowQrModal,
+    simulateQrScan,
+    simulateAlreadyReceivedScan,
+  }), [
     visibleData,
     loading,
     refreshing,
@@ -193,6 +270,11 @@ export function BeneficiaryDataProvider({ children }) {
     markNotificationRead,
     releasedItems,
     dismissReleasedAlert,
+    alreadyReceivedAlert,
+    dismissAlreadyReceivedAlert,
+    showQrModal,
+    simulateQrScan,
+    simulateAlreadyReceivedScan,
   ]);
 
   return (

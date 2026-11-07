@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import {
+  Image,
   Keyboard,
   Modal,
   Pressable,
@@ -8,50 +9,55 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import Svg, { Path, Rect } from 'react-native-svg';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuth } from '../contexts/AuthContext';
+import Svg, { Rect } from 'react-native-svg';
+import QRCode from 'react-native-qrcode-svg';
 import colors from '../styles/colors';
+import { useAuth } from '../contexts/AuthContext';
+import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
 
-const activeColor = colors.blue;
-const inactiveIconColor = colors.muted;
-const inactiveTextColor = colors.muted;
-
-function QrIcon() {
+function QrGridIcon({ size = 26, color = '#FFFFFF' }) {
   return (
-    <Svg width={38} height={38} viewBox="0 0 38 38" fill="none" stroke={colors.white} strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M5 13V7a2 2 0 0 1 2-2h6M25 5h6a2 2 0 0 1 2 2v6M33 25v6a2 2 0 0 1-2 2h-6M13 33H7a2 2 0 0 1-2-2v-6" />
-      <Rect x="11" y="11" width="6" height="6" rx="1" />
-      <Rect x="21" y="11" width="6" height="6" rx="1" />
-      <Rect x="11" y="21" width="6" height="6" rx="1" />
-      <Path d="M22 22h3v3h-3zM28 22v3h3M25 28v3h3M31 28v3" />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke={color} strokeWidth={2.4} />
+      <Rect x="13.5" y="3.5" width="7" height="7" rx="1.5" stroke={color} strokeWidth={2.4} />
+      <Rect x="3.5" y="13.5" width="7" height="7" rx="1.5" stroke={color} strokeWidth={2.4} />
+      <Rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" stroke={color} strokeWidth={2.4} />
     </Svg>
   );
 }
 
 function TabButton({ route, state, descriptors }) {
-  const router = useRouter();
-  const options = descriptors[route.key].options;
-  const focused = state.routes[state.index]?.key === route.key;
-  const color = focused ? activeColor : inactiveIconColor;
+  const isFocused = state.index === state.routes.indexOf(route);
+  const { options } = descriptors[route.key];
   const label = options.tabBarLabel ?? options.title ?? route.name;
 
   const onPress = () => {
-    router.navigate(`/(tabs)/${route.name}`);
+    const event = state.emit?.({
+      type: 'tabPress',
+      target: route.key,
+      canPreventDefault: true,
+    });
+
+    if (!isFocused && !event?.defaultPrevented) {
+      descriptors[route.key].navigation.navigate(route.name);
+    }
   };
+
+  const color = isFocused ? '#1868A0' : '#64748B';
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={options.tabBarAccessibilityLabel || String(label)}
-      accessibilityState={{ selected: focused }}
+      accessibilityState={isFocused ? { selected: true } : {}}
+      accessibilityLabel={options.tabBarAccessibilityLabel}
       onPress={onPress}
-      style={[styles.tabButton, focused && styles.tabButtonActive]}
+      style={[styles.tabButton, isFocused && styles.tabButtonActive]}
     >
-      {options.tabBarIcon?.({ focused, color, size: 18 })}
-      <Text numberOfLines={1} style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
+      {options.tabBarIcon?.({ focused: isFocused, color, size: 20 })}
+      <Text numberOfLines={1} style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -59,10 +65,22 @@ function TabButton({ route, state, descriptors }) {
 export default function MemberTabBar({ state, descriptors }) {
   const insets = useSafeAreaInsets();
   const { session } = useAuth();
-  const [showQr, setShowQr] = useState(false);
-  const [qrHovered, setQrHovered] = useState(false);
-  const [qrPressed, setQrPressed] = useState(false);
+  const {
+    showQrModal,
+    setShowQrModal,
+    simulateAlreadyReceivedScan,
+    data,
+  } = useBeneficiaryData();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  const distributions = data?.distributions || [];
+  const pendingAssignments = distributions.filter(
+    (item) => String(item.status).toLowerCase() === 'pending'
+  );
+  const releasedDistributions = distributions.filter(
+    (item) => String(item.status).toLowerCase() === 'released'
+  );
+  const isAlreadyReceived = pendingAssignments.length === 0 && releasedDistributions.length > 0;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -76,143 +94,183 @@ export default function MemberTabBar({ state, descriptors }) {
   if (keyboardVisible) return null;
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-      <View style={styles.bar}>
-        {state.routes.filter((route) => {
-          const options = descriptors[route.key]?.options;
-          return options?.href !== null;
-        }).map((route, index) => (
-          <Fragment key={route.key}>
-            {index === 2 ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Show my beneficiary QR code"
-                onPress={() => setShowQr(true)}
-                onPressIn={() => setQrPressed(true)}
-                onPressOut={() => setQrPressed(false)}
-                onHoverIn={() => setQrHovered(true)}
-                onHoverOut={() => setQrHovered(false)}
-                style={({ pressed }) => [
-                  styles.qrTabButton,
-                  (pressed || qrHovered) && styles.qrTabButtonHighlighted,
-                ]}
-              >
-                <View style={[styles.qrTabCircle, (qrHovered || qrPressed) && styles.qrTabCircleHovered]}><QrIcon /></View>
-                <Text style={styles.qrTabLabel}>QR</Text>
-              </Pressable>
-            ) : null}
-            <TabButton
-              route={route}
-              state={state}
-              descriptors={descriptors}
-            />
-          </Fragment>
-        ))}
-      </View>
+    <View style={styles.tabBarWrapper}>
+      {/* Wave flourish peeking behind the rounded tab bar top */}
+      <Image
+        source={require('../../assets/login-footer.png')}
+        style={styles.waveFooter}
+        resizeMode="cover"
+      />
 
-      <Modal
-        animationType="fade"
-        transparent
-        visible={showQr}
-        onRequestClose={() => setShowQr(false)}
-      >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.qrModal}>
-            <Text style={styles.modalTitle}>Your beneficiary QR</Text>
-            <Text style={styles.modalSubtitle}>Show this code to relief staff at pickup.</Text>
-            {session?.beneficiaryNo ? (
-              <View style={styles.qrFrame}>
-                <QRCode
-                  value={session.beneficiaryNo}
-                  size={230}
-                  color={colors.navy}
-                  backgroundColor={colors.white}
-                  ecl="H"
-                  quietZone={8}
+      <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 6) }]}>
+        <View style={styles.bar}>
+          {state.routes
+            .filter((route) => {
+              const options = descriptors[route.key]?.options;
+              return options?.href !== null;
+            })
+            .map((route, index) => (
+              <Fragment key={route.key}>
+                {index === 2 ? (
+                  <View style={styles.qrSlot}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Show my beneficiary QR code"
+                      onPress={() => setShowQrModal(true)}
+                      style={({ pressed }) => [
+                        styles.qrCircle,
+                        pressed && styles.qrCirclePressed,
+                      ]}
+                    >
+                      <QrGridIcon size={26} color="#FFFFFF" />
+                    </Pressable>
+                  </View>
+                ) : null}
+                <TabButton
+                  route={route}
+                  state={state}
+                  descriptors={descriptors}
                 />
-              </View>
-            ) : (
-              <Text style={styles.modalSubtitle}>Your beneficiary number is not available. Please sign in again.</Text>
-            )}
-            {session?.beneficiaryNo ? <Text selectable style={styles.beneficiaryNumber}>{session.beneficiaryNo}</Text> : null}
-            <TouchableOpacity accessibilityRole="button" onPress={() => setShowQr(false)} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+              </Fragment>
+            ))}
         </View>
-      </Modal>
+
+        <Modal
+          animationType="fade"
+          transparent
+          visible={showQrModal}
+          onRequestClose={() => setShowQrModal(false)}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.qrModal}>
+              <Text style={styles.modalTitle}>Your beneficiary QR</Text>
+              <Text style={styles.modalSubtitle}>Show this code to relief staff at pickup.</Text>
+              {session?.beneficiaryNo ? (
+                <Pressable
+                  onPress={() => {
+                    if (isAlreadyReceived) {
+                      simulateAlreadyReceivedScan();
+                    }
+                  }}
+                  style={styles.qrFrame}
+                >
+                  <QRCode
+                    value={session.beneficiaryNo}
+                    size={230}
+                    color={colors.navy}
+                    backgroundColor={colors.white}
+                    ecl="H"
+                    quietZone={8}
+                  />
+                </Pressable>
+              ) : (
+                <Text style={styles.modalSubtitle}>Your beneficiary number is not available. Please sign in again.</Text>
+              )}
+              {session?.beneficiaryNo ? <Text selectable style={styles.beneficiaryNumber}>{session.beneficiaryNo}</Text> : null}
+
+              {isAlreadyReceived ? (
+                <View style={styles.alreadyClaimedBadge}>
+                  <Text style={styles.alreadyClaimedBadgeText}>
+                    ℹ️ Relief package already claimed
+                  </Text>
+                </View>
+              ) : null}
+
+              <TouchableOpacity accessibilityRole="button" onPress={() => setShowQrModal(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  tabBarWrapper: {
+    position: 'relative',
+    backgroundColor: 'transparent',
+  },
+  waveFooter: {
+    position: 'absolute',
+    bottom: 38,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: 52,
+    opacity: 0.9,
+    zIndex: 0,
+  },
   container: {
-    backgroundColor: colors.white,
-    borderTopColor: colors.border,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#E2E8F0',
     paddingHorizontal: 8,
-    paddingTop: 8,
+    paddingTop: 6,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 1,
   },
   bar: {
     flexDirection: 'row',
-    height: 60,
+    height: 56,
     justifyContent: 'space-around',
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   tabButton: {
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
     flex: 1,
     justifyContent: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 4,
     marginHorizontal: 2,
-    paddingVertical: 6,
   },
   tabButtonActive: {
-    backgroundColor: colors.blueLight,
+    backgroundColor: '#E0EDFD',
   },
   tabLabel: {
-    color: inactiveTextColor,
+    color: '#64748B',
     fontSize: 11,
-    marginTop: 4,
+    fontWeight: '500',
+    marginTop: 2,
   },
   tabLabelActive: {
-    color: activeColor,
-    fontWeight: '600',
+    color: '#1868A0',
+    fontWeight: '700',
   },
-  qrTabButton: {
-    alignItems: 'center',
+  qrSlot: {
     flex: 1,
-    height: 70,
-    justifyContent: 'flex-end',
-    paddingBottom: 4,
-  },
-  qrTabButtonHighlighted: {
-    backgroundColor: colors.blueLight,
-  },
-  qrTabCircle: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderColor: colors.white,
-    borderRadius: 36,
-    borderWidth: 4,
-    height: 72,
     justifyContent: 'center',
-    position: 'absolute',
-    top: -28,
-    width: 72,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+  },
+  qrCircle: {
+    alignItems: 'center',
+    backgroundColor: '#059669',
+    borderColor: '#FFFFFF',
+    borderRadius: 29,
+    borderWidth: 3.5,
+    height: 58,
+    justifyContent: 'center',
+    width: 58,
+    marginTop: -26,
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 8,
   },
-  qrTabCircleHovered: {
-    backgroundColor: colors.primaryDark,
-  },
-  qrTabLabel: {
-    color: colors.muted,
-    fontSize: 11,
-    marginTop: 4,
+  qrCirclePressed: {
+    backgroundColor: '#047857',
+    transform: [{ scale: 0.95 }],
   },
   modalBackdrop: {
     alignItems: 'center',
@@ -261,9 +319,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.primary,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 18,
     paddingHorizontal: 32,
     paddingVertical: 12,
+    width: '100%',
   },
   closeButtonText: { color: colors.white, fontSize: 15, fontWeight: '600' },
+  alreadyClaimedBadge: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  alreadyClaimedBadgeText: {
+    color: '#DC2626',
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });

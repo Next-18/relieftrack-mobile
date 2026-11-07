@@ -13,7 +13,7 @@ function RootNavigator() {
 
   return (
     <BeneficiaryDataProvider>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
         <Stack.Screen name="index" />
         <Stack.Protected guard={!session}>
           <Stack.Screen name="login" />
@@ -23,6 +23,7 @@ function RootNavigator() {
         </Stack.Protected>
         <Stack.Protected guard={Boolean(session) && Boolean(session.passwordChanged)}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="notifications" options={{ animation: 'none' }} />
           <Stack.Screen name="update-password" options={{ animation: 'none' }} />
           <Stack.Screen name="edit-profile" options={{ animation: 'none' }} />
         </Stack.Protected>

@@ -1,17 +1,70 @@
 import React from 'react';
-import { Image, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
+import Svg, { Path } from 'react-native-svg';
 import colors from '../styles/colors';
 import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
 import ReceiptAlertModal from './ReceiptAlertModal';
 
-export default function MemberLayout({ children, onRefresh, refreshing = false }) {
-  const { releasedItems, dismissReleasedAlert } = useBeneficiaryData();
+export default function MemberLayout({
+  children,
+  title,
+  onBack,
+  onRefresh,
+  refreshing = false,
+  headerRight,
+}) {
+  const router = useRouter();
+  const {
+    releasedItems,
+    dismissReleasedAlert,
+    alreadyReceivedAlert,
+    dismissAlreadyReceivedAlert,
+  } = useBeneficiaryData();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/home');
+    }
+  };
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       <StatusBar style="dark" />
+
+      {/* Top Wave Background matching mockups */}
+      {title ? (
+        <View style={styles.topRightBlueWaveWrap} pointerEvents="none">
+          <Svg width={240} height={110} viewBox="0 0 240 110">
+            <Path d="M0 0 C70 55 150 25 240 75 L240 0 Z" fill="#1868A0" opacity="0.9" />
+            <Path d="M30 0 C95 65 170 35 240 95 L240 0 Z" fill="#38BDF8" opacity="0.35" />
+          </Svg>
+        </View>
+      ) : (
+        <View style={styles.topRightWaveWrap} pointerEvents="none">
+          <Svg width={160} height={80} viewBox="0 0 160 80">
+            <Path d="M0 0 C50 35 105 25 160 60 L160 0 Z" fill="#46B04F" opacity="0.6" />
+            <Path d="M35 0 C80 45 115 35 160 75 L160 0 Z" fill="#1868A0" opacity="0.4" />
+          </Svg>
+        </View>
+      )}
+
       <KeyboardAvoidingView
         style={styles.keyboardAvoiding}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -26,22 +79,50 @@ export default function MemberLayout({ children, onRefresh, refreshing = false }
               : undefined
           }
         >
-          <View style={styles.topBar}>
-            <View style={styles.brand}>
-              <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
-              <View>
-                <Text style={styles.brandName}>
-                  <Text style={styles.brandRelief}>Relief</Text>
-                  <Text style={styles.brandTrack}>Track</Text>
-                </Text>
-                <Text style={styles.brandCaption}>BENEFICIARY PORTAL</Text>
+          {/* ── Top Header ── */}
+          {title ? (
+            <View style={styles.subScreenHeader}>
+              <View style={styles.subScreenHeaderLeft}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Go back"
+                  onPress={handleBack}
+                  style={styles.backButton}
+                  hitSlop={8}
+                >
+                  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <Path d="M15 18l-6-6 6-6" />
+                  </Svg>
+                </Pressable>
+                <Text style={styles.subScreenTitle}>{title}</Text>
+              </View>
+              {headerRight || null}
+            </View>
+          ) : (
+            <View style={styles.topBar}>
+              <View style={styles.brand}>
+                <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+                <View>
+                  <Text style={styles.brandName}>
+                    <Text style={styles.brandRelief}>Relief</Text>
+                    <Text style={styles.brandTrack}>Track</Text>
+                  </Text>
+                  <Text style={styles.brandCaption}>BENEFICIARY PORTAL</Text>
+                </View>
               </View>
             </View>
-          </View>
+          )}
+
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
-      <ReceiptAlertModal items={releasedItems} onDismiss={dismissReleasedAlert} />
+
+      <ReceiptAlertModal
+        items={releasedItems}
+        error={alreadyReceivedAlert}
+        onDismiss={dismissReleasedAlert}
+        onDismissError={dismissAlreadyReceivedAlert}
+      />
     </SafeAreaView>
   );
 }
@@ -49,7 +130,19 @@ export default function MemberLayout({ children, onRefresh, refreshing = false }
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F2F5FC',
+  },
+  topRightWaveWrap: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 0,
+  },
+  topRightBlueWaveWrap: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 0,
   },
   keyboardAvoiding: {
     flex: 1,
@@ -59,42 +152,65 @@ const styles = StyleSheet.create({
     maxWidth: 580,
     alignSelf: 'center',
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingTop: 8,
+    paddingBottom: 24,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginBottom: 12,
+    paddingTop: 2,
+    zIndex: 1,
   },
   brand: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   logo: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     marginRight: 10,
   },
   brandName: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
   brandRelief: {
-    color: colors.blue,
+    color: '#1868A0',
   },
   brandTrack: {
-    color: colors.greenDark,
+    color: '#16A34A',
   },
   brandCaption: {
-    color: colors.muted,
-    fontSize: 11,
-    fontWeight: '500',
+    color: '#64748B',
+    fontSize: 10,
+    fontWeight: '700',
     marginTop: 1,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+  },
+  subScreenHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+    paddingTop: 4,
+    zIndex: 1,
+  },
+  subScreenHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    padding: 4,
+    marginRight: 8,
+    marginLeft: -4,
+  },
+  subScreenTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0F172A',
+    letterSpacing: -0.3,
   },
 });

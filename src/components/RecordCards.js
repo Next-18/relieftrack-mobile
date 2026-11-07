@@ -105,7 +105,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   compactRow: {
-    paddingVertical: 6,
+    paddingVertical: 10,
+    borderBottomWidth: 0,
   },
   rowContent: {
     flex: 1,
@@ -121,10 +122,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   rowTitle: {
-    color: colors.text,
+    color: '#0F172A',
     flex: 1,
     fontSize: 15,
-    fontWeight: '400',
+    fontWeight: '700',
     lineHeight: 20,
   },
   metaRow: {
@@ -133,8 +134,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   dateText: {
-    color: colors.muted,
-    fontSize: 12,
+    color: '#64748B',
+    fontSize: 13,
     fontWeight: '400',
   },
   categoryPill: {
