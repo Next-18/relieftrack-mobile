@@ -173,7 +173,7 @@ export default function MemberTabBar({ state, descriptors }) {
               {isAlreadyReceived ? (
                 <View style={styles.alreadyClaimedBadge}>
                   <Text style={styles.alreadyClaimedBadgeText}>
-                    ℹRelief package already claimed
+                    Relief package already claimed
                   </Text>
                 </View>
               ) : null}
