@@ -87,15 +87,17 @@ export async function loginBeneficiary({ beneficiaryNo, password }) {
   return result.data;
 }
 
+
 export async function getAuthenticatedUser(token) {
   const result = await sendRequest(
-    '/user',
+    '/auth/me',
     { token },
     'Your sign-in has expired. Please sign in again.'
   );
 
   return result.user || result.data?.user || result.data || result;
 }
+
 
 export async function getBeneficiaryProfile(token, beneficiaryId) {
   const result = await sendRequest(

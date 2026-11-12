@@ -39,7 +39,9 @@
         {
           "useSQLCipher": true
         }
-      ]
+      ],
+      "expo-audio",
+      "expo-status-bar"
     ],
     "extra": {
       "router": {
