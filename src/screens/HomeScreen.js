@@ -64,7 +64,7 @@ export default function HomeScreen() {
         {/* Dynamic user greeting */}
         <View style={styles.welcomeCopy}>
           <Text style={styles.welcomeGreetingLine1}>Welcome,</Text>
-          <Text numberOfLines={2} style={styles.welcomeGreetingLine2}>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={styles.welcomeGreetingLine2}>
             {displayName}!
           </Text>
           <Text style={styles.welcomeSubtitle}>
@@ -205,6 +205,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.4,
     lineHeight: 26,
+    minFontSize: 14,
   },
   welcomeSubtitle: {
     color: '#1E293B',
