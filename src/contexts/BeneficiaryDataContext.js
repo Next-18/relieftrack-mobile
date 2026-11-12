@@ -2,13 +2,23 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { useAuth } from './AuthContext';
 import {
   getAvailablePackages,
+  getBeneficiaryAnnouncements,
   getBeneficiaryDistributions,
   getBeneficiaryProfile,
   getBeneficiaryNotifications,
   markBeneficiaryNotificationRead,
+  submitSupportTicket,
 } from '../services/api';
+import {
+  createOfflineActionId,
+  enqueueOfflineAction,
+  getCachedResource,
+  getOfflineActions,
+  removeOfflineAction,
+  saveCachedResource,
+} from '../services/offlineStore';
 
-const RESOURCE_KEYS = ['profile', 'distributions', 'packages', 'notifications'];
+const RESOURCE_KEYS = ['profile', 'distributions', 'packages', 'notifications', 'announcements'];
 const BeneficiaryDataContext = createContext(null);
 
 function makeResourceState(initialValue) {
@@ -29,6 +39,68 @@ export function BeneficiaryDataProvider({ children }) {
   const [releasedItems, setReleasedItems] = useState(null);
   const [alreadyReceivedAlert, setAlreadyReceivedAlert] = useState(null);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [offline, setOffline] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState(null);
+  const [pendingActions, setPendingActions] = useState([]);
+  const syncingActions = useRef(false);
+
+  const refreshPendingActions = useCallback(async () => {
+    if (!beneficiaryId) return;
+    setPendingActions(await getOfflineActions(beneficiaryId));
+  }, [beneficiaryId]);
+
+  const syncPendingActions = useCallback(async () => {
+    if (!token || !beneficiaryId || syncingActions.current) return;
+    syncingActions.current = true;
+    try {
+      let actions;
+      try {
+        actions = await getOfflineActions(beneficiaryId);
+      } catch {
+        return;
+      }
+      for (const action of actions) {
+        try {
+          if (action.kind === 'support_ticket') {
+            await submitSupportTicket(token, { ...action.payload, offline_request_id: action.id });
+          } else if (action.kind === 'notification_read') {
+            await markBeneficiaryNotificationRead(token, action.payload.notificationId);
+          } else {
+            continue;
+          }
+          await removeOfflineAction(beneficiaryId, action.id);
+        } catch (error) {
+          if (error.status === 0) setOffline(true);
+          break;
+        }
+      }
+    } finally {
+      syncingActions.current = false;
+      await refreshPendingActions().catch(() => {});
+    }
+  }, [token, beneficiaryId, refreshPendingActions]);
+
+  const queueSupportTicket = useCallback(async (payload) => {
+    if (!token || !beneficiaryId) throw new Error('Sign in to send a support request.');
+    const action = {
+      id: createOfflineActionId(),
+      beneficiaryId,
+      kind: 'support_ticket',
+      payload,
+    };
+    try {
+      const ticket = await submitSupportTicket(token, { ...payload, offline_request_id: action.id });
+      return { queued: false, ticket };
+    } catch (error) {
+      if (error.status !== 0) {
+        throw error;
+      }
+      await enqueueOfflineAction(action);
+      setOffline(true);
+      await refreshPendingActions();
+      return { queued: true };
+    }
+  }, [token, beneficiaryId, refreshPendingActions]);
 
   const dismissReleasedAlert = useCallback(() => {
     setReleasedItems(null);
@@ -99,12 +171,22 @@ export function BeneficiaryDataProvider({ children }) {
       distributions: () => getBeneficiaryDistributions(token, beneficiaryId),
       packages: () => getAvailablePackages(token),
       notifications: () => getBeneficiaryNotifications(token),
+      announcements: () => getBeneficiaryAnnouncements(token),
     };
 
     await Promise.all(requests.map(async ({ key, requestId }) => {
       try {
         const nextValue = await loaders[key]();
         if (requestIds.current[key] !== requestId) return;
+        let cachedAt = new Date().toISOString();
+        try {
+          cachedAt = await saveCachedResource(beneficiaryId, key, nextValue);
+        } catch {
+          // Keep online use working when this app binary has not enabled SQLCipher yet.
+        }
+        setLastSyncedAt((current) => !current || cachedAt > current ? cachedAt : current);
+        setOffline(false);
+        syncPendingActions().catch(() => {});
 
         if (key === 'distributions' && Array.isArray(nextValue) && Array.isArray(dataRef.current.distributions)) {
           const isReleased = (item) => String(item.status).toLowerCase() === 'released';
@@ -126,6 +208,7 @@ export function BeneficiaryDataProvider({ children }) {
         });
       } catch (error) {
         if (requestIds.current[key] !== requestId) return;
+        if (error.status === 0) setOffline(true);
         setErrors((current) => ({
           ...current,
           [key]: error.message || 'Please try again in a moment.',
@@ -137,7 +220,7 @@ export function BeneficiaryDataProvider({ children }) {
         }
       }
     }));
-  }, [token, beneficiaryId]);
+  }, [token, beneficiaryId, syncPendingActions]);
 
   // Initial data load when session changes
   useEffect(() => {
@@ -152,6 +235,9 @@ export function BeneficiaryDataProvider({ children }) {
       setReleasedItems(null);
       setAlreadyReceivedAlert(null);
       setShowQrModal(false);
+      setPendingActions([]);
+      setLastSyncedAt(null);
+      setOffline(false);
       return undefined;
     }
 
@@ -167,10 +253,32 @@ export function BeneficiaryDataProvider({ children }) {
       setReleasedItems(null);
       setAlreadyReceivedAlert(null);
       setShowQrModal(false);
+      setPendingActions([]);
+      setLastSyncedAt(null);
+      setOffline(false);
+      (async () => {
+        const cached = await Promise.all(RESOURCE_KEYS.map(async (key) => [key, await getCachedResource(beneficiaryId, key).catch(() => null)]));
+        if (activeSessionKey.current !== sessionKey) return;
+        const restoredData = makeResourceState(null);
+        let newestUpdate = null;
+        for (const [key, entry] of cached) {
+          if (entry) {
+            restoredData[key] = entry.value;
+            if (!newestUpdate || entry.updatedAt > newestUpdate) newestUpdate = entry.updatedAt;
+          }
+        }
+        dataRef.current = restoredData;
+        setData(restoredData);
+        setLastSyncedAt(newestUpdate);
+        setLoading((current) => Object.fromEntries(RESOURCE_KEYS.map((key) => [key, restoredData[key] === null])));
+        await refreshPendingActions().catch(() => {});
+        await loadResources(RESOURCE_KEYS);
+      })();
+      return undefined;
     }
 
     loadResources(RESOURCE_KEYS);
-  }, [loadResources, token, beneficiaryId]);
+  }, [loadResources, token, beneficiaryId, refreshPendingActions]);
 
   // Fast adaptive polling for instant QR release detection
   const hasPending = useMemo(() => {
@@ -191,7 +299,7 @@ export function BeneficiaryDataProvider({ children }) {
     const pollInterval = showQrModal ? 1500 : hasPending ? 3500 : 30000;
 
     const intervalId = setInterval(() => {
-      loadResources(['distributions', 'packages', 'notifications'], false);
+      loadResources(['distributions', 'packages', 'notifications', 'announcements'], false);
     }, pollInterval);
 
     return () => clearInterval(intervalId);
@@ -206,15 +314,28 @@ export function BeneficiaryDataProvider({ children }) {
     setData((current) => {
       const next = { ...current, profile: nextProfile };
       dataRef.current = next;
+      saveCachedResource(beneficiaryId, 'profile', nextProfile).then(setLastSyncedAt).catch(() => {});
       return next;
     });
-  }, []);
+  }, [beneficiaryId]);
 
   const markNotificationRead = useCallback(async (notificationId) => {
     if (!token) return;
 
-    await markBeneficiaryNotificationRead(token, notificationId);
     const readAt = new Date().toISOString();
+    try {
+      await markBeneficiaryNotificationRead(token, notificationId);
+    } catch (error) {
+      if (error.status !== 0) throw error;
+      await enqueueOfflineAction({
+        id: createOfflineActionId(),
+        beneficiaryId,
+        kind: 'notification_read',
+        payload: { notificationId },
+      });
+      setOffline(true);
+      await refreshPendingActions();
+    }
     setData((current) => {
       const next = {
         ...current,
@@ -223,13 +344,23 @@ export function BeneficiaryDataProvider({ children }) {
         )),
       };
       dataRef.current = next;
+      saveCachedResource(beneficiaryId, 'notifications', next.notifications || []).catch(() => {});
       return next;
     });
-  }, [token]);
+  }, [token, beneficiaryId, refreshPendingActions]);
 
   const visibleData = useMemo(() => {
+    const announcementUpdates = (data.announcements || []).map((announcement) => ({
+      ...announcement,
+      message: announcement.body,
+      created_at: announcement.published_at,
+      is_announcement: true,
+    }));
+    const updates = [...announcementUpdates, ...(data.notifications || [])]
+      .sort((a, b) => new Date(b.published_at || b.created_at || 0) - new Date(a.published_at || a.created_at || 0));
+
     if (!data.packages || !data.distributions) {
-      return { ...data, packages: null };
+      return { ...data, packages: null, updates };
     }
 
     const assignedPackageIds = new Set(
@@ -240,6 +371,7 @@ export function BeneficiaryDataProvider({ children }) {
 
     return {
       ...data,
+      updates,
       packages: data.packages.filter((packageItem) => !assignedPackageIds.has(String(packageItem.id))),
     };
   }, [data]);
@@ -249,7 +381,12 @@ export function BeneficiaryDataProvider({ children }) {
     loading,
     refreshing,
     errors,
+    offline,
+    lastSyncedAt,
+    pendingActions,
     refresh,
+    syncPendingActions,
+    queueSupportTicket,
     setProfileData,
     markNotificationRead,
     releasedItems,
@@ -265,7 +402,12 @@ export function BeneficiaryDataProvider({ children }) {
     loading,
     refreshing,
     errors,
+    offline,
+    lastSyncedAt,
+    pendingActions,
     refresh,
+    syncPendingActions,
+    queueSupportTicket,
     setProfileData,
     markNotificationRead,
     releasedItems,

@@ -70,6 +70,7 @@ export default function MemberTabBar({ state, descriptors }) {
     setShowQrModal,
     simulateAlreadyReceivedScan,
     data,
+    offline,
   } = useBeneficiaryData();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -145,6 +146,7 @@ export default function MemberTabBar({ state, descriptors }) {
             <View style={styles.qrModal}>
               <Text style={styles.modalTitle}>Your beneficiary QR</Text>
               <Text style={styles.modalSubtitle}>Show this code to relief staff at pickup.</Text>
+              {offline ? <Text style={styles.offlineNote}>Offline: this code identifies your account. Staff must reconnect to verify eligibility and record a release.</Text> : null}
               {session?.beneficiaryNo ? (
                 <Pressable
                   onPress={() => {
@@ -315,6 +317,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginTop: 16,
   },
+  offlineNote: { color: '#92400E', backgroundColor: '#FEF3C7', borderRadius: 8, fontSize: 12, lineHeight: 17, marginBottom: 12, padding: 10, textAlign: 'center' },
   closeButton: {
     alignItems: 'center',
     backgroundColor: colors.primary,

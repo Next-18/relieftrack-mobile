@@ -11,11 +11,11 @@
       "supportsTablet": true
     },
     "android": {
-     "adaptiveIcon": {
-  "backgroundColor": "#edf7f2",
-  "foregroundImage": "./assets/android-icon-foreground.png",
-  "monochromeImage": "./assets/android-icon-monochrome.png"
-},
+      "adaptiveIcon": {
+        "backgroundColor": "#edf7f2",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
       "package": "com.relieftrack.mobile"
     },
     "web": {
@@ -32,7 +32,13 @@
           "backgroundColor": "#F2F5FC"
         }
       ],
-      "expo-router"
+      "expo-router",
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true
+        }
+      ]
     ],
     "extra": {
       "router": {

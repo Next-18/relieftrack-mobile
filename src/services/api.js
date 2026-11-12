@@ -141,6 +141,16 @@ export async function getAvailablePackages(token) {
   return unwrapCollection(result);
 }
 
+export async function getBeneficiaryAnnouncements(token) {
+  const result = await sendRequest(
+    '/announcements',
+    { token },
+    'Barangay announcements could not be loaded.'
+  );
+
+  return unwrapCollection(result);
+}
+
 export async function getBeneficiaryNotifications(token) {
   const result = await sendRequest(
     '/notifications',
@@ -157,6 +167,30 @@ export async function markBeneficiaryNotificationRead(token, notificationId) {
     { method: 'PATCH', token },
     'The notification could not be marked as read.'
   );
+}
+
+export async function getSupportTickets(token) {
+  const result = await sendRequest(
+    '/support/tickets',
+    { token },
+    'Your support requests could not be loaded.'
+  );
+
+  return unwrapCollection(result);
+}
+
+export async function submitSupportTicket(token, payload) {
+  const result = await sendRequest(
+    '/support/tickets',
+    {
+      method: 'POST',
+      token,
+      body: JSON.stringify(payload),
+    },
+    'Your support request could not be sent.'
+  );
+
+  return unwrapRecord(result);
 }
 
 export async function logoutBeneficiary(token) {

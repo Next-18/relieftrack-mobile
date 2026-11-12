@@ -11,7 +11,7 @@ import { useBeneficiaryData } from '../contexts/BeneficiaryDataContext';
 
 export default function NotificationsScreen() {
   const { data, markNotificationRead, refresh, refreshing } = useBeneficiaryData();
-  const notifications = data.notifications || [];
+  const notifications = data.updates || data.notifications || [];
 
   return (
     <MemberLayout
@@ -22,10 +22,10 @@ export default function NotificationsScreen() {
       <View style={styles.container}>
         {notifications.length > 0 ? (
           notifications.map((item) => {
-            const isRead = Boolean(item.read_at);
+            const isRead = Boolean(item.read_at) || item.is_announcement;
             return (
               <View
-                key={item.id}
+                key={`${item.is_announcement ? 'announcement' : 'notification'}-${item.id}`}
                 style={[styles.notificationCard, !isRead && styles.notificationCardUnread]}
               >
                 <View style={styles.iconBadge}>
@@ -33,11 +33,12 @@ export default function NotificationsScreen() {
                 </View>
                 <View style={styles.content}>
                   <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.message}>{item.message}</Text>
+                  <Text style={styles.message}>{item.message || item.body}</Text>
+                  {item.author ? <Text style={styles.message}>Posted by {item.author}</Text> : null}
                   {!isRead ? (
                     <TouchableOpacity
                       accessibilityRole="button"
-                      onPress={() => markNotificationRead?.(item.id)}
+                      onPress={() => !item.is_announcement && markNotificationRead?.(item.id)}
                       style={styles.markReadBtn}
                     >
                       <Text style={styles.markReadText}>Mark as read</Text>

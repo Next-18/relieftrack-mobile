@@ -96,6 +96,12 @@ export default function AccountScreen() {
             />
             <View style={styles.menuDivider} />
             <MenuRow
+              title="Contact support"
+              subtitle="Send a concern to the Barangay Administrator"
+              onPress={() => router.push('/support')}
+            />
+            <View style={styles.menuDivider} />
+            <MenuRow
               title="Sign out"
               onPress={handleSignOut}
               destructive

@@ -36,14 +36,14 @@ export default function HomeScreen() {
   const { session } = useAuth();
   const { data, loading, refreshing, errors, refresh, markNotificationRead } = useBeneficiaryData();
 
-  const { profile, distributions, packages, notifications } = data;
+  const { profile, distributions, packages, updates } = data;
   const displayName = profile?.full_name || session?.user?.name || session?.user?.full_name || 'Beneficiary';
   const releasedCount = distributions?.filter((item) => item.status === 'Released').length;
 
   return (
     <MemberLayout
       onRefresh={() => refresh()}
-      refreshing={refreshing.profile || refreshing.distributions || refreshing.packages || refreshing.notifications}
+      refreshing={refreshing.profile || refreshing.distributions || refreshing.packages || refreshing.notifications || refreshing.announcements}
     >
       {/* ── Welcome Banner Card ── */}
       <View style={styles.welcomeCard}>
@@ -80,7 +80,7 @@ export default function HomeScreen() {
       {/* ── Announcements Section ── */}
       <View style={styles.sectionBlock}>
         <AnnouncementSection
-          notifications={notifications || []}
+          notifications={updates || []}
           onMarkRead={markNotificationRead}
           trailing={<SeeAllLink href="/notifications" />}
         />

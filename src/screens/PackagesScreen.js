@@ -26,63 +26,6 @@ const CATEGORIES = [
   'Water',
 ];
 
-const DEFAULT_SAMPLE_PACKAGES = [
-  {
-    id: 'sample-food',
-    package_name: 'Family Food Pack',
-    category: 'Food',
-    description: 'Rice, canned goods, noodles and more.',
-    status: 'Available',
-    items: [
-      { id: '1', item_name: 'Rice (5kg sack)', quantity_per_package: 1, unit: 'sack' },
-      { id: '2', item_name: 'Canned Sardines', quantity_per_package: 4, unit: 'cans' },
-      { id: '3', item_name: 'Canned Corned Beef', quantity_per_package: 4, unit: 'cans' },
-      { id: '4', item_name: 'Instant Noodles', quantity_per_package: 6, unit: 'packs' },
-      { id: '5', item_name: 'Coffee Sachets', quantity_per_package: 8, unit: 'packs' },
-    ],
-  },
-  {
-    id: 'sample-hygiene',
-    package_name: 'Hygiene Kit',
-    category: 'Hygiene',
-    description: 'Soap, shampoo, personal care items.',
-    status: 'Available',
-    items: [
-      { id: '6', item_name: 'Bath Soap Bars', quantity_per_package: 3, unit: 'bars' },
-      { id: '7', item_name: 'Shampoo (Sachets)', quantity_per_package: 6, unit: 'sachets' },
-      { id: '8', item_name: 'Toothpaste (150g)', quantity_per_package: 2, unit: 'tubes' },
-      { id: '9', item_name: 'Toothbrushes', quantity_per_package: 4, unit: 'pcs' },
-      { id: '10', item_name: 'Sanitary Napkins', quantity_per_package: 2, unit: 'packs' },
-    ],
-  },
-  {
-    id: 'sample-emergency',
-    package_name: 'Emergency Kit',
-    category: 'Emergency',
-    description: 'Flashlight, first aid, and essentials.',
-    status: 'Available',
-    items: [
-      { id: '11', item_name: 'LED Flashlight & Batteries', quantity_per_package: 1, unit: 'set' },
-      { id: '12', item_name: 'First Aid Medical Kit', quantity_per_package: 1, unit: 'kit' },
-      { id: '13', item_name: 'Emergency Whistle', quantity_per_package: 2, unit: 'pcs' },
-      { id: '14', item_name: 'Thermal Mylar Blanket', quantity_per_package: 2, unit: 'pcs' },
-    ],
-  },
-  {
-    id: 'sample-relief',
-    package_name: 'Relief Pack',
-    category: 'General',
-    description: 'Food and hygiene essentials.',
-    status: 'Available',
-    items: [
-      { id: '15', item_name: 'Assorted Canned Goods', quantity_per_package: 6, unit: 'cans' },
-      { id: '16', item_name: 'Drinking Water (1L)', quantity_per_package: 4, unit: 'bottles' },
-      { id: '17', item_name: 'Hygiene Soap & Towel', quantity_per_package: 1, unit: 'pack' },
-      { id: '18', item_name: 'Disaster Relief Backpack', quantity_per_package: 1, unit: 'pc' },
-    ],
-  },
-];
-
 function SearchIcon({ size = 18, color = '#94A3B8' }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
@@ -112,18 +55,8 @@ export default function PackagesScreen() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activePackage, setActivePackage] = useState(null);
 
-  // Combine API packages with default mockup sample packages if API list is empty or minimal
-  const allPackages = useMemo(() => {
-    if (apiPackages && apiPackages.length > 0) {
-      // Check if sample packages are needed or if API already has complete items
-      const hasFood = apiPackages.some((p) => String(p.package_name).toLowerCase().includes('food'));
-      if (!hasFood) {
-        return [...apiPackages, ...DEFAULT_SAMPLE_PACKAGES];
-      }
-      return apiPackages;
-    }
-    return DEFAULT_SAMPLE_PACKAGES;
-  }, [apiPackages]);
+  // Show only packages returned by the signed-in beneficiary API.
+  const allPackages = apiPackages;
 
   // Filter packages based on search query and category
   const filteredPackages = useMemo(() => {
@@ -273,7 +206,9 @@ export default function PackagesScreen() {
       {!isLoading && !error && filteredPackages.length === 0 ? (
         <EmptyState
           title="No packages found"
-          message={`No packages match "${searchQuery || selectedCategory}". Try selecting another category or clearing your search.`}
+          message={!apiPackages.length
+            ? 'There are no packages available right now. Packages published by your Barangay will appear here.'
+            : `No packages match "${searchQuery || selectedCategory}". Try selecting another category or clearing your search.`}
         />
       ) : null}
 

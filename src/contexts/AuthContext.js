@@ -10,6 +10,7 @@ import {
   getSavedSession,
   saveSession,
 } from '../services/authStorage';
+import { clearCachedResources } from '../services/offlineStore';
 
 const AuthContext = createContext(null);
 
@@ -127,6 +128,9 @@ export function AuthProvider({ children }) {
     const currentSession = session;
     setSession(null);
     setStorageWarning(false);
+    if (currentSession?.beneficiaryId) {
+      await clearCachedResources(currentSession.beneficiaryId).catch(() => {});
+    }
     await clearSavedSession().catch(() => {});
     if (currentSession?.token) {
       await logoutBeneficiary(currentSession.token).catch(() => {});

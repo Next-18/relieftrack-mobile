@@ -125,7 +125,7 @@ function AnnouncementCard({ notification, onMarkRead, children }) {
       <View style={styles.announcementBody}>
         <Text style={styles.announcementTitle}>{notification.title}</Text>
         <Text style={styles.announcementText}>{notification.message}</Text>
-        {!notification.read_at ? (
+        {!notification.is_announcement && !notification.read_at ? (
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => onMarkRead?.(notification.id)}

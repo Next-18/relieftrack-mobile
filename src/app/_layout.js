@@ -26,6 +26,7 @@ function RootNavigator() {
           <Stack.Screen name="notifications" options={{ animation: 'none' }} />
           <Stack.Screen name="update-password" options={{ animation: 'none' }} />
           <Stack.Screen name="edit-profile" options={{ animation: 'none' }} />
+          <Stack.Screen name="support" options={{ animation: 'none' }} />
         </Stack.Protected>
       </Stack>
     </BeneficiaryDataProvider>

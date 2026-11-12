@@ -27,6 +27,7 @@ export default function MemberLayout({
   headerRight,
 }) {
   const router = useRouter();
+  const { offline, lastSyncedAt, pendingActions } = useBeneficiaryData();
   const {
     releasedItems,
     dismissReleasedAlert,
@@ -113,6 +114,16 @@ export default function MemberLayout({
             </View>
           )}
 
+          {offline || pendingActions.length > 0 ? (
+            <View accessibilityRole="alert" style={styles.offlineNotice}>
+              <Text style={styles.offlineNoticeText}>
+                {offline ? 'Offline mode: showing saved information.' : 'Some changes are waiting to sync.'}
+                {lastSyncedAt ? ` Last synced ${new Date(lastSyncedAt).toLocaleString()}.` : ' No saved server data is available yet.'}
+                {pendingActions.length ? ` ${pendingActions.length} change${pendingActions.length === 1 ? '' : 's'} pending.` : ''}
+              </Text>
+            </View>
+          ) : null}
+
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -155,6 +166,16 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 24,
   },
+  offlineNotice: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FCD34D',
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+  },
+  offlineNoticeText: { color: '#92400E', fontSize: 12, lineHeight: 17 },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
